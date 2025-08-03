@@ -41,15 +41,15 @@
                         <span class="font-semibold text-red-700 w-1/2">Description</span>
                     </div>
                 @foreach($tasks as $task)
-                    <li class="mb-2 p-4 bg-gray-100 rounded shadow flex flex-col md:flex-row md:items-center gap-4">
+                    <li class="p-4 bg-gray-100 rounded shadow flex flex-col md:flex-row md:items-center gap-4">
                         <div class="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto flex-1">
                             <span class="font-semibold text-gray-700 md:w-1/2">{{ $task->name }}</span>
                             <span class="text-gray-700 md:w-1/2">{{ $task->description }}</span>
-                            <button onclick="openEditTaskModal({{ $task->id }}, '{{ addslashes($task->name) }}', '{{ addslashes($task->description) }}')"
-                                class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition text-sm font-semibold">
-                                Edit
-                            </button>
-                            <form action="/delete-task/{{ $task->id }}" method="POST" class="flex items-center">
+                            <form action="/delete-task/{{ $task->id }}" method="POST" class="mb-0 flex items-center space-x-2">
+                                <button type="button" onclick="openEditTaskModal({{ $task->id }}, '{{ addslashes($task->name) }}', '{{ addslashes($task->description) }}')"
+                                    class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition text-sm font-semibold">
+                                    Edit
+                                </button>
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
