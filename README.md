@@ -27,49 +27,46 @@ This Task magamement dashboard developed using Laravel and Tailwind CSS. It incl
 ![EditTaskModal](./assets/EditTask.png)
 
 
-## How to Setup
+## User Setup Guide
 
-### Requirements
-- Laravel Herd (PHP 8.4 & Composer)
-- PostgreSQL
+1. Clone the GitHub repository `git clone https://github.com/AlFranzianne/OSOlink.git` then run `cd OSOlink` on your terminal to move to the OSOlink directory
 
-## Installation Steps
-
-1. Clone the Repository
-`git clone https://github.com/AlFranzianne/OSOlink.git`
-then run `cd OSOlink` on your terminal
-
-2. Install Laravel Herd
-
-    For Mac : https://herd.laravel.com/docs/macos/getting-started/installation
+2. Install Laravel Herd and install PHP 8.4 and Composer in the app
 
     For Windows: https://herd.laravel.com/docs/windows/getting-started/installation
 
-3. Install Dependencies by running this command on your terminal
-`composer install`
+    For Mac: https://herd.laravel.com/docs/macos/getting-started/installation
 
-4. Set Up Environment File by running this command on your terminal
-`cp .env.example .env`
+3. Install PostgreSQL or MySQL
 
-    Then generate app key:
+    PostgreSQL: https://www.postgresql.org/download/
+    
+    MySQL: https://www.mysql.com/downloads/
 
-    `php artisan key:generate`
+4. Install dependencies by running these commands on your terminal (Run in Command Prompt if script is getting blocked)
 
-5. Configure your database
+```commandprompt
+composer install
+npm install
+npm run dev
+php artisan key:generate
+```
+
+5. Set up your environment file by running this command on your terminal `cp .env.example .env` and configure your database info
+
 ```dotenv
-DB_CONNECTION=pgsql
+DB_CONNECTION=pgsql (or mysql for MySQL)
 DB_HOST=127.0.0.1
-DB_PORT=5432
+DB_PORT=5432 (default PostgreSQL port)
 DB_DATABASE=your_database_name
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
 ```
-Then run migrations:
+
+Then run database migrations
 `php artisan migrate`
 
-6. Serve the application by running this command on your terminal
-`php artisan serve`
-Then open `http://localhost:8000` in your browser
+7. Have Laravel Herd running in the background and open `OSOlink.test` in your browser
 
 
 ## About Laravel
