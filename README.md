@@ -29,23 +29,23 @@ This Task magamement dashboard developed using Laravel and Tailwind CSS. It incl
 
 ## User Setup Guide
 
-1. Clone the repository `git clone https://github.com/AlFranzianne/OSOlink.git` then run `cd OSOlink` on your terminal to move to the OSOlink directory
-
-2. Install Laravel Herd and install PHP 8.4 and Composer in the app
+1. Download and install Laravel Herd and install PHP 8.4 and Composer in the app
 
     For Windows: https://herd.laravel.com/docs/windows/getting-started/installation
 
     For Mac: https://herd.laravel.com/docs/macos/getting-started/installation
 
-3. Install PostgreSQL or MySQL, depending on your preference
+2. Download and install PostgreSQL or MySQL, depending on your preference
 
     PostgreSQL: https://www.postgresql.org/download/
     
     MySQL: https://www.mysql.com/downloads/
 
+3. Clone the repository `git clone https://github.com/AlFranzianne/OSOlink.git` then run `cd OSOlink` on your terminal to move to the OSOlink directory
+
 4. Install dependencies by running these commands on your terminal, run in Command Prompt if your command is getting blocked by security
 
-```Command Prompt
+```cmd
 composer install
 npm install
 npm run dev
@@ -57,7 +57,7 @@ php artisan key:generate
 ```dotenv
 DB_CONNECTION=pgsql     // (or mysql for MySQL)
 DB_HOST=127.0.0.1
-DB_PORT=5432            // (default PostgreSQL port)
+DB_PORT=5432            // (or 3306 for MySQL)
 DB_DATABASE=your_database_name
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
