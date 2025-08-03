@@ -57,7 +57,7 @@ php artisan key:generate
 ```dotenv
 DB_CONNECTION=pgsql     // (or mysql for MySQL)
 DB_HOST=127.0.0.1
-DB_PORT=5432 (default PostgreSQL port)
+DB_PORT=5432            // (default PostgreSQL port)
 DB_DATABASE=your_database_name
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
