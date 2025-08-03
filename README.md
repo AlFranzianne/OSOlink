@@ -30,10 +30,8 @@ This Task magamement dashboard developed using Laravel and Tailwind CSS. It incl
 ## How to Setup
 
 ### Requirements
-- PHP 8.4
-- Composer
+- Laravel Herd (PHP 8.4 & Composer)
 - PostgreSQL
-- Laravel Herd
 
 ## Installation Steps
 
