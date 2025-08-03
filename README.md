@@ -39,7 +39,7 @@ This Task magamement dashboard developed using Laravel and Tailwind CSS. It incl
 
 1. Clone the Repository
 `git clone https://github.com/AlFranzianne/OSOlink.git`
-then run `cd OSOlink` oon your terminal
+then run `cd OSOlink` on your terminal
 
 2. Install Laravel Herd
 
@@ -47,10 +47,10 @@ For Mac : https://herd.laravel.com/docs/macos/getting-started/installation
 
 For Windows: https://herd.laravel.com/docs/windows/getting-started/installation
 
-3. Install Dependencies by runniung this command on your terminal
+3. Install Dependencies by running this command on your terminal
 `composer install`
 
-4. Set Up Environment File by runniung this command on your terminal
+4. Set Up Environment File by running this command on your terminal
 `cp .env.example .env`
 Then generate app key:
 `php artisan key:generate`
@@ -65,7 +65,7 @@ DB_PASSWORD=your_password`
 Then run migrations:
 `php artisan migrate`
 
-6. Serve the application by runniung this command on your terminal
+6. Serve the application by running this command on your terminal
 `php artisan serve`
 Then open Then open `http://localhost:8000` in your browser
 
