@@ -29,7 +29,7 @@ This Task magamement dashboard developed using Laravel and Tailwind CSS. It incl
 
 ## User Setup Guide
 
-1. Clone the GitHub repository `git clone https://github.com/AlFranzianne/OSOlink.git` then run `cd OSOlink` on your terminal to move to the OSOlink directory
+1. Clone the repository `git clone https://github.com/AlFranzianne/OSOlink.git` then run `cd OSOlink` on your terminal to move to the OSOlink directory
 
 2. Install Laravel Herd and install PHP 8.4 and Composer in the app
 
@@ -37,25 +37,25 @@ This Task magamement dashboard developed using Laravel and Tailwind CSS. It incl
 
     For Mac: https://herd.laravel.com/docs/macos/getting-started/installation
 
-3. Install PostgreSQL or MySQL
+3. Install PostgreSQL or MySQL, depending on your preference
 
     PostgreSQL: https://www.postgresql.org/download/
     
     MySQL: https://www.mysql.com/downloads/
 
-4. Install dependencies by running these commands on your terminal (Run in Command Prompt if script is getting blocked)
+4. Install dependencies by running these commands on your terminal, run in Command Prompt if your command is getting blocked by security
 
-```commandprompt
+```Command Prompt
 composer install
 npm install
 npm run dev
 php artisan key:generate
 ```
 
-5. Set up your environment file by running this command on your terminal `cp .env.example .env` and configure your database info
+5. Set up your environment file by running this command on your terminal `cp .env.example .env` and configure your database info as follows
 
 ```dotenv
-DB_CONNECTION=pgsql (or mysql for MySQL)
+DB_CONNECTION=pgsql     // (or mysql for MySQL)
 DB_HOST=127.0.0.1
 DB_PORT=5432 (default PostgreSQL port)
 DB_DATABASE=your_database_name
@@ -63,10 +63,9 @@ DB_USERNAME=your_username
 DB_PASSWORD=your_password
 ```
 
-Then run database migrations
-`php artisan migrate`
+6. Run the Laravel database migrations `php artisan migrate` to make your Laravel database in PostgreSQL or MySQL
 
-7. Have Laravel Herd running in the background and open `OSOlink.test` in your browser
+7. While Laravel Herd is running in the background, open `OSOlink.test` in your browser
 
 
 ## About Laravel
