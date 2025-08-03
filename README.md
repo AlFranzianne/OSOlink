@@ -42,6 +42,7 @@ This Task magamement dashboard developed using Laravel and Tailwind CSS. It incl
 then run `cd OSOlink` oon your terminal
 
 2. Install Laravel Herd
+
 For Mac : https://herd.laravel.com/docs/macos/getting-started/installation
 
 For Windows: https://herd.laravel.com/docs/windows/getting-started/installation
