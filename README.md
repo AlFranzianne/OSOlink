@@ -27,6 +27,17 @@ This Task magamement dashboard developed using Laravel and Tailwind CSS. It incl
 ![EditTaskModal](./assets/EditTask.png)
 
 
+## How to Setup
+
+### Requirements
+- PHP 8.4
+- Composer
+- PostgreSQL
+- Laravel Herd
+
+##
+
+
 
 
 
