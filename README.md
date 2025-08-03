@@ -43,9 +43,9 @@ then run `cd OSOlink` on your terminal
 
 2. Install Laravel Herd
 
-For Mac : https://herd.laravel.com/docs/macos/getting-started/installation
+    For Mac : https://herd.laravel.com/docs/macos/getting-started/installation
 
-For Windows: https://herd.laravel.com/docs/windows/getting-started/installation
+    For Windows: https://herd.laravel.com/docs/windows/getting-started/installation
 
 3. Install Dependencies by running this command on your terminal
 `composer install`
