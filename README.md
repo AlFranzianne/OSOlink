@@ -51,9 +51,9 @@ then run `cd OSOlink` on your terminal
 4. Set Up Environment File by running this command on your terminal
 `cp .env.example .env`
 
-Then generate app key:
+    Then generate app key:
 
-`php artisan key:generate`
+    `php artisan key:generate`
 
 5. Configure your database
 ```dotenv
