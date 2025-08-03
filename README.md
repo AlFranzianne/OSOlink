@@ -54,18 +54,20 @@ Then generate app key:
 `php artisan key:generate`
 
 5. Configure your database
-`DB_CONNECTION=pgsql
+```dotenv
+DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
 DB_PORT=5432
 DB_DATABASE=your_database_name
 DB_USERNAME=your_username
-DB_PASSWORD=your_password`
+DB_PASSWORD=your_password
+```
 Then run migrations:
 `php artisan migrate`
 
 6. Serve the application by running this command on your terminal
 `php artisan serve`
-Then open Then open `http://localhost:8000` in your browser
+Then open `http://localhost:8000` in your browser
 
 
 ## About Laravel
