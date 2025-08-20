@@ -1,0 +1,1 @@
+// ambot ngano need ang welcome.blade.php adksjadjjk crazy routing

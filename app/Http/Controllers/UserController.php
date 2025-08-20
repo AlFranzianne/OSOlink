@@ -12,7 +12,8 @@ class UserController extends Controller
         $incomingFields = $request->validate([
             'name' => ['required', 'min:3', Rule::unique('users', 'name')],
             'email' => ['required', 'email', Rule::unique('users', 'email')],
-            'password' => ['required', 'min:8']
+            'password' => ['required', 'min:3']
+            // Ive set the min password length to 3 since the user will be able to edit his/her credentials later
         ]);
 
         $incomingFields['password'] = bcrypt($incomingFields['password']);
@@ -29,9 +30,10 @@ class UserController extends Controller
 
         if (auth('web')->attempt(['name' => $incomingFields['username'],'password' => $incomingFields['password']])) {
             $request->session()->regenerate();
+            return redirect('/')->with('success', 'Logged in successfully!');
         }
 
-        return redirect('/');
+        return back()->withErrors(['name' => 'Invalid username or password.']);
     }
     
     public function logout() {

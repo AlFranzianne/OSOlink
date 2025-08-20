@@ -1,19 +1,21 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\TaskController;
-use App\Models\Task;
 
+// Redirect "/" to login
 Route::get('/', function () {
-    $tasks = Task::where('user_id', auth('web')->id())->get();
-    return view('home', ['tasks' => $tasks]);
+    return redirect()->route('login');
 });
 
-Route::post('/register', [UserController::class, 'register']);
-Route::post('/logout', [UserController::class, 'logout']);
-Route::post('/login', [UserController::class, 'login']);
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::post('/add-task', [TaskController::class, 'addTask']);
-Route::put('/edit-task/{task}', [TaskController::class, 'editTask']);
-Route::delete('/delete-task/{task}', [TaskController::class, 'deleteTask']);
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
