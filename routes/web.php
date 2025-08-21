@@ -3,7 +3,6 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-// Redirect "/" to login
 Route::get('/', function () {
     return redirect()->route('login');
 });
