@@ -22,44 +22,46 @@
 
                 <!-- Task List -->
                 @if($tasks->count() > 0)
-                    <table class="min-w-full border border-gray-300">
-                        <thead>
-                            <tr class="bg-gray-100">
-                                <th class="px-4 py-2 border">Title</th>
-                                <th class="px-4 py-2 border">Description</th>
-                                <th class="px-4 py-2 border">Deadline</th>
-                                <th class="px-4 py-2 border">Assigned User</th>
-                                <th class="px-4 py-2 border">Status</th>
-                                <th class="px-4 py-2 border">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($tasks as $task)
-                                <tr>
-                                    <td class="px-4 py-2 border">{{ $task->title }}</td>
-                                    <td class="px-4 py-2 border">{{ $task->description }}</td>
-                                    <td class="px-4 py-2 border">{{ $task->deadline }}</td>
-                                    <td class="px-4 py-2 border">{{ $task->user->name ?? 'Unassigned' }}</td>
-                                    <td class="px-4 py-2 border capitalize">{{ str_replace('_',' ',$task->status) }}</td>
-                                    <td class="px-4 py-2 border">
-                                        <a href="{{ route('tasks.edit', $task) }}" 
-                                           class="text-blue-600 hover:underline">Edit</a>
-                                        <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" 
-                                                    class="text-red-600 hover:underline"
-                                                    onclick="return confirm('Are you sure?')">
-                                                Delete
-                                            </button>
-                                        </form>
-                                    </td>
+                    <div class="overflow-x-auto">
+                        <table class="table-auto w-full border border-gray-300 text-center">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="px-4 py-2 border">Title</th>
+                                    <th class="px-4 py-2 border">Description</th>
+                                    <th class="px-4 py-2 border">Deadline</th>
+                                    <th class="px-4 py-2 border">Assigned User</th>
+                                    <th class="px-4 py-2 border">Status</th>
+                                    <th class="px-4 py-2 border">Actions</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach($tasks as $task)
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-2 border">{{ $task->title }}</td>
+                                        <td class="px-4 py-2 border">{{ $task->description }}</td>
+                                        <td class="px-4 py-2 border">{{ $task->deadline }}</td>
+                                        <td class="px-4 py-2 border">{{ $task->user->name ?? 'Unassigned' }}</td>
+                                        <td class="px-4 py-2 border capitalize">{{ str_replace('_',' ',$task->status) }}</td>
+                                        <td class="px-4 py-2 border space-x-2">
+                                            <a href="{{ route('tasks.edit', $task) }}" 
+                                               class="text-blue-600 hover:underline">Edit</a>
+                                            <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" 
+                                                        class="text-red-600 hover:underline"
+                                                        onclick="return confirm('Are you sure?')">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 @else
-                    <p>No tasks found. Create one above!</p>
+                    <p class="text-center">No tasks found. Create one above!</p>
                 @endif
             </div>
         </div>
