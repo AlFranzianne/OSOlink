@@ -42,9 +42,9 @@ npm install && npm run dev
 ```bash
  cp .env.example .env
 ```
-Update the .env file with your PostgreSQL credentials, APP_URL, and other settings:
+Update the .env file with your database credentials, APP_URL, and other settings:
 ```ini
-DB_CONNECTION=pgsql
+DB_CONNECTION=pgsql/mysql/sqlite
 DB_HOST=127.0.0.1
 DB_PORT=5432
 DB_DATABASE=yourdatabasename
