@@ -82,10 +82,32 @@ Herd will assign a local domain (e.g., http://osolink.test)
 Open that domain in your browser to access the app
 ```
 
+---
 
 ## Requirements
 - PHP >= 8.4
 - Composer
 - Laravel 12
 - MySQL or PostgreSQL
+---
+## Features
+- User authentication (Login/Register)
+- Role-based dashboards (Admin/User)
+- Audit logs for tracking user actions
+- Responsive UI with Tailwind CSS
+---
+## Tech Stack
+- Backend: Laravel (PHP)
+- Frontend: Blade Templates, TailwindCSS
+- Database: PostgreSQL (or MySQL)
+- Package Management: Composer & NPM
+- Version Control: Git & GitHub
+---
+## Contributors
+- Rainzy Belle Cañada
+- Al Franzianne Hisuan
+- Chris Roldan Perez
+---
+## License
+This project is for **educational use only** for Software Engineering 2.
 
