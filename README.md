@@ -16,7 +16,8 @@ Project is still under development and is still being made.
 
 ### Admin Panel
 ![Admin Panel](assets/adminpanel-createusers.png)
-(assets/adminpanel-manageuser-auditlogs.png)
+
+![Admin Panel](assets/adminpanel-manageuser-auditlogs.png)
 
 ---
 
@@ -65,7 +66,6 @@ php artisan db:seed
 6. **Serve the Application (or use Laravel Herd)**
 ```bash
 php artisan serve
-## Then open you browser and go to http://localhost:8000.
 Then open your browser and go to:
 http://localhost:8000
 
@@ -83,4 +83,9 @@ Open that domain in your browser to access the app
 ```
 
 
+## Requirements
+- PHP >= 8.4
+- Composer
+- Laravel 12
+- MySQL or PostgreSQL
 
