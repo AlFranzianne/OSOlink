@@ -5,21 +5,28 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\ProjectPermission;
+use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
 {
-    // List projects: only assigned or unassigned projects for the user
+    // List projects
     public function index()
     {
         $user = auth()->user();
 
-        $projects = Project::with('creator', 'users')
-            ->where(function ($query) use ($user) {
-                $query->whereDoesntHave('users') // unassigned
-                      ->orWhereHas('users', fn($q) => $q->where('users.id', $user->id));
-            })->get();
+        if ($user->is_admin) {
+            $projects = Project::with('creator', 'users')->get();
+        } else {
+            $projects = Project::with('creator', 'users')
+                ->where(function ($query) use ($user) {
+                    $query->whereHas('users', fn($q) => $q->where('users.id', $user->id))
+                          ->orWhere('status', 'Completed')
+                          ->orWhereDoesntHave('users');
+                })
+                ->get();
+        }
 
         return view('projects.index', compact('projects'));
     }
@@ -31,7 +38,7 @@ class ProjectController extends Controller
         return view('projects.create', compact('users'));
     }
 
-    // Store project (admin only)
+    // Store project
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -57,30 +64,42 @@ class ProjectController extends Controller
             $project->users()->sync($validated['user_ids']);
         }
 
-        return redirect()->route('projects.show', $project->id)->with('success', 'Project created successfully.');
+        return redirect()->route('projects.show', $project->id)
+            ->with('success', 'Project created successfully.');
     }
 
-    // Show project details
+    // Show project
     public function show(Project $project)
     {
         $user = auth()->user();
 
-        if ($project->users()->exists() && !$user->is_admin && !$project->users->contains($user->id)) {
-            abort(403, 'You do not have access to this project.');
+        if ($user->is_admin || 
+            $project->status === 'Completed' ||
+            !$project->users()->exists() ||
+            $project->users->contains($user->id)
+        ) {
+            $project->load([
+                'users',
+                'timeLogs.user',
+                'comments.user',
+                'comments.replies.user',
+                'permissions.user',
+                'creator'
+            ]);
+            return view('projects.show', compact('project'));
         }
 
-        $project->load('users', 'timeLogs.user', 'comments.user', 'permissions.user', 'creator');
-        return view('projects.show', compact('project'));
+        abort(403, 'You do not have access to this project.');
     }
 
-    // Edit project (admin only)
+    // Edit project
     public function edit(Project $project)
     {
         $users = User::where('is_active', true)->where('is_admin', false)->get();
         return view('projects.edit', compact('project', 'users'));
     }
 
-    // Update project (admin only)
+    // Update project
     public function update(Request $request, Project $project)
     {
         $validated = $request->validate([
@@ -105,17 +124,18 @@ class ProjectController extends Controller
             $project->users()->sync($validated['user_ids'] ?? []);
         }
 
-        return redirect()->route('projects.show', $project->id)->with('success', 'Project updated successfully.');
+        return redirect()->route('projects.show', $project->id)
+            ->with('success', 'Project updated successfully.');
     }
 
-    // Delete project (admin only)
+    // Delete project
     public function destroy(Project $project)
     {
         $project->delete();
         return redirect()->route('projects.index')->with('success', 'Project deleted successfully.');
     }
 
-    // Assign/remove user (admin only)
+    // Assign/remove users
     public function assignUser(Request $request, Project $project)
     {
         $validated = $request->validate(['user_id' => 'required|exists:users,id']);
@@ -129,7 +149,7 @@ class ProjectController extends Controller
         return back()->with('success', 'User removed.');
     }
 
-    // Permissions (admin only)
+    // Permissions
     public function setPermission(Request $request, Project $project)
     {
         $validated = $request->validate([
@@ -145,38 +165,51 @@ class ProjectController extends Controller
         return back()->with('success', 'Permission updated.');
     }
 
-    // Comments (any auth user)
+    // Comments
     public function addComment(Request $request, Project $project)
     {
-        $validated = $request->validate(['content' => 'required|string|max:2000']);
+        if ($project->status === 'Completed') {
+            return back()->with('error', 'Cannot comment on a completed project.');
+        }
+
+        $validated = $request->validate([
+            'content' => 'required|string|max:2000',
+            'parent_id' => 'nullable|exists:comments,id'
+        ]);
 
         $project->comments()->create([
             'user_id' => Auth::id(),
             'content' => $validated['content'],
+            'parent_id' => $validated['parent_id'] ?? null,
         ]);
 
         return back()->with('success', 'Comment added.');
     }
 
-    // Join/Leave unassigned projects (non-admin)
+    // Join project
     public function join(Project $project)
     {
         $user = auth()->user();
 
-        if ($project->users()->exists()) {
-            return back()->with('error', 'Cannot join a project with assigned users.');
+        if ($project->users->contains($user->id)) {
+            return back()->with('error', 'You are already in this project.');
+        }
+
+        if ($project->status === 'Completed') {
+            return back()->with('error', 'Cannot join a completed project.');
         }
 
         $project->users()->attach($user->id);
         return back()->with('success', 'You joined the project.');
     }
 
+    // Leave project
     public function leave(Project $project)
     {
         $user = auth()->user();
 
-        if ($project->users()->exists()) {
-            return back()->with('error', 'Cannot leave a project with assigned users.');
+        if (!$project->users->contains($user->id)) {
+            return back()->with('error', 'You are not part of this project.');
         }
 
         $project->users()->detach($user->id);
