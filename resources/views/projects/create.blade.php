@@ -1,64 +1,83 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Create Project') }}
-        </h2>
-    </x-slot>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+                <header class="flex items-start justify-between">
+                    <div>
+                        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+                            {{ __('Create Project') }}
+                        </h2>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                            {{ __("Make a new project for employees to collaborate on.") }}
+                        </p>
+                </header>
+                <form method="POST" action="{{ route('projects.store') }}" class="mt-6 space-y-6">
+                    @csrf
 
-    <div class="max-w-3xl mx-auto p-6">
-        <h1 class="text-2xl font-bold mb-4">Create Project</h1>
+                    <!-- Name -->
+                    <div>
+                        <x-input-label for="name" :value="__('Name')" />
+                        <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" required autofocus />
+                        <x-input-error class="mt-2" :messages="$errors->get('name')" />
+                    </div>
 
-        <form method="POST" action="{{ route('projects.store') }}" class="space-y-4">
-            @csrf
+                    <!-- Description -->
+                    <div>
+                        <x-input-label for="description" :value="__('Description')" />
+                        <x-text-input id="description" name="description" type="text" class="mt-1 block w-full" required />
+                        <x-input-error class="mt-2" :messages="$errors->get('description')" />
+                    </div>
 
-            <div>
-                <label class="block font-semibold">Name</label>
-                <input type="text" name="name" value="{{ old('name') }}" 
-                       class="w-full border rounded p-2" required>
+                    <!-- Status -->
+                    <div>
+                        <x-input-label for="status" :value="__('Status')" />
+                        <select name="status" id="status"
+                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                            required>
+                            <option value="Not Started">Not Started</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="On Hold">On Hold</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                        <x-input-error class="mt-2" :messages="$errors->get('status')" />
+                    </div>
+
+                    <!-- Start & End Dates -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <x-input-label for="start_date" :value="__('Start Date')" />
+                            <input type="date" name="start_date" value="{{ old('start_date') }}"
+                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" />
+                            <x-input-error class="mt-2" :messages="$errors->get('start_date')" />
+                        </div>
+                        <div>
+                            <x-input-label for="end_date" :value="__('End Date')" />
+                            <input type="date" name="end_date" value="{{ old('end_date') }}"
+                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" />
+                            <x-input-error class="mt-2" :messages="$errors->get('end_date')" />
+                        </div>
+                    </div>
+
+                    <!-- User Assignment (Optional) -->
+                    <div>
+                        <x-input-label for="user_ids" :value="__('Assign Users (hold Ctrl/Cmd to multi-select)')" />
+                        <select name="user_ids[]" id="user_ids" multiple
+                            class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                            @forelse($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }} — {{ $user->email }}</option>
+                            @empty
+                                <option disabled>No users available</option>
+                            @endforelse
+                        </select>
+                        <x-input-error class="mt-2" :messages="$errors->get('user_ids')" />
+                        <p class="text-sm text-gray-500 mt-1">Optional — assign users now or later.</p>
+                    </div>
+
+                    <x-primary-button type="submit">
+                        Save Project
+                    </x-primary-button>
+                </form>
             </div>
-
-            <div>
-                <label class="block font-semibold">Description</label>
-                <textarea name="description" class="w-full border rounded p-2">{{ old('description') }}</textarea>
-            </div>
-
-            <div>
-                <label class="block font-semibold">Status</label>
-                <select name="status" class="w-full border rounded p-2" required>
-                    <option value="Not Started">Not Started</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="On Hold">On Hold</option>
-                    <option value="Completed">Completed</option>
-                </select>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block font-semibold">Start Date</label>
-                    <input type="date" name="start_date" value="{{ old('start_date') }}" class="w-full border rounded p-2">
-                </div>
-                <div>
-                    <label class="block font-semibold">End Date</label>
-                    <input type="date" name="end_date" value="{{ old('end_date') }}" class="w-full border rounded p-2">
-                </div>
-            </div>
-
-            {{-- Optional: assign users at creation time --}}
-            <div>
-                <label class="block font-semibold">Assign Users (hold Ctrl/Cmd to multi-select)</label>
-                <select name="user_ids[]" multiple class="w-full border rounded p-2">
-                    @forelse($users as $user)
-                        <option value="{{ $user->id }}">{{ $user->name }} — {{ $user->email }}</option>
-                    @empty
-                        <option disabled>No users available</option>
-                    @endforelse
-                </select>
-                <p class="text-sm text-gray-500 mt-1">Optional — assign users now or later.</p>
-            </div>
-
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                Save Project
-            </button>
-        </form>
+        </div>
     </div>
 </x-app-layout>

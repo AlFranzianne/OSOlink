@@ -116,7 +116,7 @@
                             </x-primary-button>
                         </form>
                     </div>
-                    <table class="w-full divide-y divide-gray-300 dark:divide-gray-700">
+                    <table class="rounded-lg overflow-hidden w-full divide-y divide-gray-300 dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
                                 <th class="px-4 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-200">Name</th>
@@ -125,7 +125,7 @@
                                 <th class="px-4 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-200">Action</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-gray-200 dark:divide-gray-600">
+                        <tbody class="divide-gray-200 dark:bg-gray-900">
                             @foreach ($users as $user)
                                 <tr>
                                     <td class="px-4 py-2 text-center text-sm text-gray-900 dark:text-gray-100">{{ $user->name }}</td>
@@ -139,9 +139,9 @@
                                         <form action="{{ route('admin.users.toggle', $user) }}" method="POST">
                                             @csrf
                                             @method('PATCH')
-                                            <x-primary-button>
+                                            <x-secondary-button>
                                                 {{ $user->is_active ? 'Deactivate' : 'Activate' }}
-                                            </x-primary-button>
+                                            </x-secondary-button>
                                         </form>
                                     </td>
                                 </tr>
@@ -210,7 +210,7 @@
                     </div>
 
                     <!-- Table -->
-                    <table class="w-full divide-y divide-gray-300 dark:divide-gray-700">
+                    <table class="rounded-lg overflow-hidden w-full divide-y divide-gray-300 dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
                                 <th class="px-4 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-200">User</th>
@@ -219,7 +219,7 @@
                                 <th class="px-4 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-200">When</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-gray-200 dark:divide-gray-600">
+                        <tbody class="divide-gray-200 dark:bg-gray-900">
                             @foreach($logs as $log)
                                 <tr>
                                     <td class="px-4 py-2 text-center text-sm text-gray-900 dark:text-gray-100">
