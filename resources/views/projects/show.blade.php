@@ -41,7 +41,7 @@
                         <div class="text-sm text-gray-500">{{ $user->email }}</div>
                     </div>
 
-                    @if(auth()->user()->is_admin)
+                    @if(auth()->user()->is_admin && $project->status !== 'Completed')
                         <form method="POST" action="{{ route('projects.removeUser', [$project->id, $user->id]) }}">
                             @csrf
                             @method('DELETE')
@@ -52,7 +52,7 @@
             @endforeach
         </ul>
 
-        {{-- Assign a user (admin only) --}}
+        {{-- Assign a user (admin only, not allowed if completed) --}}
         @if(auth()->user()->is_admin && $project->status !== 'Completed')
             <form method="POST" action="{{ route('projects.assignUser', $project->id) }}" class="mt-2 flex gap-2 mb-6">
                 @csrf
@@ -67,7 +67,7 @@
             </form>
         @endif
 
-        {{-- Join/Leave project for non-admin users --}}
+        {{-- Join/Leave project for non-admin users (disabled if completed) --}}
         @unless(auth()->user()->is_admin)
             <div class="mb-6">
                 @if($project->status !== 'Completed')
@@ -87,7 +87,7 @@
                         </form>
                     @endif
                 @else
-                    <p class="text-gray-500 italic">This project is completed. Joining is disabled.</p>
+                    <p class="text-gray-500">This project is completed. You cannot join or leave.</p>
                 @endif
             </div>
         @endunless
@@ -95,7 +95,7 @@
         {{-- Comments --}}
         <h3 class="text-lg font-semibold mt-8 mb-2">Comments</h3>
         <div class="space-y-3">
-            @forelse($project->comments->where('parent_id', null)->sortByDesc('created_at') as $comment)
+            @forelse($project->comments->whereNull('parent_id')->sortByDesc('created_at') as $comment)
                 <div class="border rounded p-3">
                     <div class="text-sm text-gray-600">
                         {{ $comment->user->name }} · 
@@ -105,47 +105,41 @@
 
                     {{-- Replies --}}
                     <div class="ml-6 mt-3 space-y-2">
-                        @foreach($comment->replies as $reply)
-                            <div class="border-l-2 pl-3 text-sm">
-                                <div class="text-gray-600">
+                        @foreach($comment->replies()->orderBy('created_at')->get() as $reply)
+                            <div class="border-l-2 pl-3">
+                                <div class="text-sm text-gray-600">
                                     {{ $reply->user->name }} · 
                                     <span class="text-xs text-gray-400">{{ $reply->created_at->diffForHumans() }}</span>
                                 </div>
-                                <div>{{ $reply->content }}</div>
+                                <div class="mt-1">{{ $reply->content }}</div>
                             </div>
                         @endforeach
                     </div>
 
-                    {{-- Reply form (only if not completed) --}}
-                    @if($project->status !== 'Completed')
-                        <form method="POST" action="{{ route('projects.comments.store', $project->id) }}" class="mt-2">
-                            @csrf
-                            <input type="hidden" name="parent_id" value="{{ $comment->id }}">
-                            <textarea name="content" rows="2" class="w-full border rounded p-2 text-sm" required placeholder="Reply..."></textarea>
-                            <div class="mt-2">
-                                <button class="px-3 py-1 bg-gray-700 text-white text-sm rounded">Reply</button>
-                            </div>
-                        </form>
-                    @endif
+                    {{-- Reply form --}}
+                    <form method="POST" action="{{ route('projects.comments.store', $project->id) }}" class="mt-2 ml-6">
+                        @csrf
+                        <input type="hidden" name="parent_id" value="{{ $comment->id }}">
+                        <textarea name="content" rows="2" class="w-full border rounded p-2" required></textarea>
+                        <div class="mt-1">
+                            <button class="px-3 py-1 bg-indigo-600 text-white rounded">Reply</button>
+                        </div>
+                    </form>
                 </div>
             @empty
                 <p class="text-gray-500">No comments yet.</p>
             @endforelse
         </div>
 
-        {{-- Add comment form (disabled if completed) --}}
-        @if($project->status !== 'Completed')
-            <form method="POST" action="{{ route('projects.comments.store', $project->id) }}" class="mt-4">
-                @csrf
-                <label class="block font-semibold">Add a comment</label>
-                <textarea name="content" rows="3" class="w-full border rounded p-2" required>{{ old('content') }}</textarea>
-                <div class="mt-2">
-                    <button class="px-3 py-2 bg-indigo-600 text-white rounded">Post Comment</button>
-                </div>
-            </form>
-        @else
-            <p class="text-gray-500 italic mt-4">This project is completed. Adding comments is disabled.</p>
-        @endif
+        {{-- Add comment form (always enabled) --}}
+        <form method="POST" action="{{ route('projects.comments.store', $project->id) }}" class="mt-4">
+            @csrf
+            <label class="block font-semibold">Add a comment</label>
+            <textarea name="content" rows="3" class="w-full border rounded p-2" required>{{ old('content') }}</textarea>
+            <div class="mt-2">
+                <button class="px-3 py-2 bg-indigo-600 text-white rounded">Post Comment</button>
+            </div>
+        </form>
 
         <div class="mt-6 flex gap-4">
             <a href="{{ route('projects.index') }}" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Back</a>

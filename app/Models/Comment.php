@@ -16,6 +16,8 @@ class Comment extends Model
         'parent_id',
     ];
 
+    protected $with = ['user', 'replies']; // Auto eager-load
+
     public function project()
     {
         return $this->belongsTo(Project::class);
@@ -32,9 +34,9 @@ class Comment extends Model
         return $this->belongsTo(Comment::class, 'parent_id');
     }
 
-    // Replies to this comment
+    // Direct replies
     public function replies()
     {
-        return $this->hasMany(Comment::class, 'parent_id');
+        return $this->hasMany(Comment::class, 'parent_id')->with('replies.user');
     }
 }

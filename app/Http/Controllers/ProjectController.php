@@ -165,13 +165,9 @@ class ProjectController extends Controller
         return back()->with('success', 'Permission updated.');
     }
 
-    // Comments
+    // Comments (allowed even if Completed)
     public function addComment(Request $request, Project $project)
     {
-        if ($project->status === 'Completed') {
-            return back()->with('error', 'Cannot comment on a completed project.');
-        }
-
         $validated = $request->validate([
             'content' => 'required|string|max:2000',
             'parent_id' => 'nullable|exists:comments,id'
