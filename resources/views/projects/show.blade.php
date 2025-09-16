@@ -13,7 +13,7 @@
                     @if(auth()->user()->is_admin)
                         <div class="flex space-x-3 ml-6">
                             <x-secondary-button>
-                            <a href="{{ route('projects.edit', $project->id) }}" >Edit</a>
+                                <a href="{{ route('projects.edit', $project->id) }}">Edit</a>
                             </x-secondary-button>
                             <form action="{{ route('projects.destroy', $project->id) }}" method="POST" 
                                 onsubmit="return confirm('Are you sure?');">
@@ -130,8 +130,17 @@
                     @csrf
                     <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Add a comment</h2>
                     <textarea name="content" rows="3" class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>{{ old('content') }}</textarea>
-                    <div class="mt-2">
+                    <div class="mt-2 flex items-center gap-3">
                         <x-primary-button>Post Comment</x-primary-button>
+
+                        <!-- Back Button -->
+                        <a href="{{ route('projects.index') }}"
+                           class="inline-flex items-center px-4 py-2 bg-gray-500 dark:bg-gray-700 border border-transparent 
+                           rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-600 
+                           dark:hover:bg-gray-600 focus:bg-gray-600 dark:focus:bg-gray-600 focus:outline-none 
+                           focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                            Back
+                        </a>
                     </div>
                 </form>               
             </div>

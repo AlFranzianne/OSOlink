@@ -17,14 +17,14 @@
                     <!-- Name -->
                     <div>
                         <x-input-label for="name" :value="__('Name')" />
-                        <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" required autofocus />
+                        <x-text-input id="name" name="name" type="text" value="{{ old('name') }}" class="mt-1 block w-full" required autofocus />
                         <x-input-error class="mt-2" :messages="$errors->get('name')" />
                     </div>
 
                     <!-- Description -->
                     <div>
                         <x-input-label for="description" :value="__('Description')" />
-                        <x-text-input id="description" name="description" type="text" class="mt-1 block w-full" required />
+                        <x-text-input id="description" name="description" type="text" value="{{ old('description') }}" class="mt-1 block w-full" required />
                         <x-input-error class="mt-2" :messages="$errors->get('description')" />
                     </div>
 
@@ -34,10 +34,10 @@
                         <select name="status" id="status"
                             class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
                             required>
-                            <option value="Not Started">Not Started</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="On Hold">On Hold</option>
-                            <option value="Completed">Completed</option>
+                            <option value="Not Started" {{ old('status') == 'Not Started' ? 'selected' : '' }}>Not Started</option>
+                            <option value="In Progress" {{ old('status') == 'In Progress' ? 'selected' : '' }}>In Progress</option>
+                            <option value="On Hold" {{ old('status') == 'On Hold' ? 'selected' : '' }}>On Hold</option>
+                            <option value="Completed" {{ old('status') == 'Completed' ? 'selected' : '' }}>Completed</option>
                         </select>
                         <x-input-error class="mt-2" :messages="$errors->get('status')" />
                     </div>
@@ -47,13 +47,15 @@
                         <div>
                             <x-input-label for="start_date" :value="__('Start Date')" />
                             <input type="date" name="start_date" value="{{ old('start_date') }}"
-                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" />
+                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                                required />
                             <x-input-error class="mt-2" :messages="$errors->get('start_date')" />
                         </div>
                         <div>
                             <x-input-label for="end_date" :value="__('End Date')" />
                             <input type="date" name="end_date" value="{{ old('end_date') }}"
-                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" />
+                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                                required />
                             <x-input-error class="mt-2" :messages="$errors->get('end_date')" />
                         </div>
                     </div>
@@ -64,13 +66,14 @@
                         <select name="user_ids[]" id="user_ids" multiple
                             class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
                             @forelse($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }} — {{ $user->email }}</option>
+                                <option value="{{ $user->id }}" {{ (collect(old('user_ids'))->contains($user->id)) ? 'selected' : '' }}>
+                                    {{ $user->name }} — {{ $user->email }}
+                                </option>
                             @empty
                                 <option disabled>No users available</option>
                             @endforelse
                         </select>
                         <x-input-error class="mt-2" :messages="$errors->get('user_ids')" />
-                        <p class="text-sm text-gray-500 mt-1">Optional — assign users now or later.</p>
                     </div>
 
                     <x-primary-button type="submit">
