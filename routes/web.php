@@ -54,7 +54,7 @@ Route::middleware('auth')->group(function () {
 
 // Admin panel + user management
 Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/adminpanel', [AdminController::class, 'index'])->name('adminpanel');
+    Route::get('/adminpanel/admin', [AdminController::class, 'index'])->name('adminpanel.admin');
     Route::post('/admin/users', [AdminController::class, 'store'])->name('admin.users.store');
     Route::patch('/admin/users/{user}/toggle', [AdminController::class, 'toggleStatus'])->name('admin.users.toggle');
     Route::get('/admin/logs', [AdminController::class, 'logs'])->name('admin.logs');

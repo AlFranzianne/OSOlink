@@ -62,7 +62,7 @@
                     </form>
                 @endif
 
-                {{-- Join/Leave project for non-admin users (disabled if completed) --}}
+                {{-- Join/Leave project for non-admin users (disabled if completed) TO BE REMOVED --}}
                 @unless(auth()->user()->is_admin)
                     <div class="mb-6">
                         @if($project->status !== 'Completed')
@@ -91,8 +91,8 @@
                 <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Comments</h2>
                 <div class="space-y-3">
                     @forelse($project->comments->whereNull('parent_id')->sortByDesc('created_at') as $comment)
-                        <div class="border-gray-300 dark:border-gray-700 border rounded-md p-3 dark:bg-gray-900 dark:text-gray-300">
-                            <div class="text-sm text-gray-600">
+                        <div class="border-gray-300 dark:border-gray-700 rounded-md p-3 dark:bg-gray-800 dark:text-gray-300">
+                            <div class="text-sm text-gray-300">
                                 {{ $comment->user->name }} · 
                                 <span class="text-xs text-gray-400">{{ $comment->created_at->diffForHumans() }}</span>
                             </div>
@@ -102,7 +102,7 @@
                             <div class="ml-6 mt-3 space-y-2">
                                 @foreach($comment->replies()->orderBy('created_at')->get() as $reply)
                                     <div class="border-l-2 pl-3">
-                                        <div class="text-sm text-gray-600">
+                                        <div class="text-sm text-gray-300">
                                             {{ $reply->user->name }} · 
                                             <span class="text-xs text-gray-400">{{ $reply->created_at->diffForHumans() }}</span>
                                         </div>

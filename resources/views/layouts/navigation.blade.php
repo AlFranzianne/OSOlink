@@ -21,7 +21,7 @@
                     </x-nav-link>
 
                     @if (Auth::check() && Auth::user()->is_admin)
-                        <x-nav-link :href="route('adminpanel')" :active="request()->routeIs('adminpanel')">
+                        <x-nav-link :href="route('adminpanel.admin')" :active="request()->routeIs('adminpanel.admin')">
                             {{ __('Admin Panel') }}
                         </x-nav-link>
                     @endif
@@ -86,7 +86,7 @@
             </x-responsive-nav-link>
 
             @if (Auth::check() && Auth::user()->is_admin)
-                <x-responsive-nav-link :href="route('adminpanel')" :active="request()->routeIs('adminpanel')">
+                <x-responsive-nav-link :href="route('adminpanel.admin')" :active="request()->routeIs('adminpanel.admin')">
                     {{ __('Admin Panel') }}
                 </x-responsive-nav-link>
             @endif

@@ -53,7 +53,7 @@ class AdminController extends Controller
 
         $users = $query->paginate(10)->withQueryString();
 
-        return view('adminpanel', compact('users', 'logs'));
+        return view('adminpanel.admin', compact('users', 'logs'));
     }
 
     public function store(Request $request)
@@ -74,13 +74,13 @@ class AdminController extends Controller
 
         $this->logAction('Created User', $user);
 
-        return redirect()->route('adminpanel')->with('success', 'User created successfully!');
+        return redirect()->route('adminpanel.admin')->with('success', 'User created successfully!');
     }
 
     public function toggleStatus(User $user)
     {
         if ($user->id === auth()->id()) {
-            return redirect()->route('adminpanel')->with('error', 'You cannot deactivate your own account!');
+            return redirect()->route('adminpanel.admin')->with('error', 'You cannot deactivate your own account!');
         }
 
         $user->is_active = !$user->is_active;
@@ -88,7 +88,7 @@ class AdminController extends Controller
 
         $this->logAction($user->is_active ? 'Activated User' : 'Deactivated User', $user);
 
-        return redirect()->route('adminpanel')->with('success', 'User status updated!');
+        return redirect()->route('adminpanel.admin')->with('success', 'User status updated!');
     }
 
     protected function logAction($action, $target = null, $changes = null)
