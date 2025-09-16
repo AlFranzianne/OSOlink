@@ -139,7 +139,7 @@
                                         <form action="{{ route('admin.users.toggle', $user) }}" method="POST">
                                             @csrf
                                             @method('PATCH')
-                                            <x-secondary-button>
+                                            <x-secondary-button type="submit">
                                                 {{ $user->is_active ? 'Deactivate' : 'Activate' }}
                                             </x-secondary-button>
                                         </form>
