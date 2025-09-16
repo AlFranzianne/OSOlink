@@ -17,6 +17,7 @@
                         </x-secondary-button>
                     @endif
                 </header>
+
                 @forelse($projects as $project)
                     <div class="mt-4 p-4 rounded-lg overflow-hidden shadow flex justify-between items-center dark:bg-gray-900">
                         <div>
@@ -39,22 +40,12 @@
 
                         <div class="flex space-x-3 items-center">
                             <a href="{{ route('projects.show', $project->id) }}" 
-                            class="text-blue-600 dark:text-blue-400 hover:underline">View</a>
+                               class="text-blue-600 dark:text-blue-400 hover:underline">View</a>
 
-                            {{-- Admin-only: Edit & Delete --}}
+                            {{-- Admin-only: Edit (no delete anymore) --}}
                             @if(auth()->user()->is_admin)
                                 <a href="{{ route('projects.edit', $project->id) }}" 
-                                class="text-green-600 dark:text-green-400 hover:underline">Edit</a>
-
-                                <form action="{{ route('projects.destroy', $project->id) }}" method="POST" 
-                                    onsubmit="return confirm('Are you sure you want to delete this project?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" 
-                                            class="text-red-600 dark:text-red-400 hover:underline">
-                                        Delete
-                                    </button>
-                                </form>
+                                   class="text-green-600 dark:text-green-400 hover:underline">Edit</a>
                             @else
                                 {{-- Regular users: Join/Leave actions --}}
                                 @if(!$project->users->contains(auth()->id()) && $project->status !== 'Completed')

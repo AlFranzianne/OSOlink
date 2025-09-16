@@ -5,24 +5,25 @@
                 <div class="flex items-start justify-between mb-4">
                     <div class="space-y-4">
                         <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">{{ $project->name }}</h2>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status: {{ $project->status }}</label>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date: {{ $project->start_date }}</label>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date: {{ $project->end_date }}</label>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description: {{ $project->description }}</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Status: {{ $project->status }}
+                        </label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Start Date: {{ $project->start_date ? \Carbon\Carbon::parse($project->start_date)->format('F d, Y') : 'N/A' }}
+                        </label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            End Date: {{ $project->end_date ? \Carbon\Carbon::parse($project->end_date)->format('F d, Y') : 'N/A' }}
+                        </label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Description: {{ $project->description }}
+                        </label>
                     </div>
+
                     @if(auth()->user()->is_admin)
                         <div class="flex space-x-3 ml-6">
                             <x-secondary-button>
                                 <a href="{{ route('projects.edit', $project->id) }}">Edit</a>
                             </x-secondary-button>
-                            <form action="{{ route('projects.destroy', $project->id) }}" method="POST" 
-                                onsubmit="return confirm('Are you sure?');">
-                                @csrf
-                                @method('DELETE')
-                                <x-secondary-button type="submit">
-                                    Delete
-                                </x-secondary-button>
-                            </form>
                         </div>
                     @endif
                 </div>
