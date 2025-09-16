@@ -27,16 +27,15 @@ class AdminController extends Controller
         }
 
         // Sorting (default: name asc)
-        $sortField = $request->get('sort', 'name');  // allowed: name, email, created_at
-        $sortOrder = $request->get('order', 'asc');  // asc or desc
+        $sortField = $request->get('sort', 'name');
+        $sortOrder = $request->get('order', 'asc');
 
         if (in_array($sortField, ['name', 'email', 'created_at'])) {
             $query->orderBy($sortField, $sortOrder);
         }
 
+        // Logs
         $logQuery = AuditLog::with('user');
-
-        // Audit Logs
 
         if ($request->filled('log_user')) {
             $logQuery->whereHas('user', function ($q) use ($request) {
@@ -70,6 +69,7 @@ class AdminController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'is_active' => true,
+            'is_admin' => $request->has('is_admin'), 
         ]);
 
         $this->logAction('Created User', $user);

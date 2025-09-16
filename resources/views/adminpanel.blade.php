@@ -49,6 +49,15 @@
                         <x-input-error class="mt-2" :messages="$errors->get('password_confirmation')" />
                     </div>
 
+                    <!-- Make Admin Checkbox -->
+                    <div class="flex items-center">
+                        <input id="is_admin" name="is_admin" type="checkbox" value="1"
+                               class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+                        <label for="is_admin" class="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                            Make this user an Admin
+                        </label>
+                    </div>
+
                     <div class="flex items-center gap-4">
                         <x-primary-button>{{ __('Create User') }}</x-primary-button>
                         @if (session('success'))
