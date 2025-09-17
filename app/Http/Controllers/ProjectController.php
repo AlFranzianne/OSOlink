@@ -258,7 +258,7 @@ class ProjectController extends Controller
 
         $timeLog->update($validated);
 
-        return redirect()->route('projects.show', $project->id)
+        return redirect()->route('projects.show', [$project->id, 'section' => 'timelogs'])
             ->with('success', 'Time log updated.');
     }
 
@@ -272,6 +272,7 @@ class ProjectController extends Controller
 
         $timeLog->delete();
 
-        return back()->with('success', 'Time log deleted.');
+        return redirect()->route('projects.show', [$project->id, 'section' => 'timelogs'])
+            ->with('success', 'Time log deleted.');
     }
 }
