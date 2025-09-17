@@ -27,10 +27,6 @@ Route::middleware('auth')->group(function () {
      */
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
 
-    // Join/Leave unassigned projects (non-admin users)
-    Route::post('/projects/{project}/join', [ProjectController::class, 'join'])->name('projects.join');
-    Route::post('/projects/{project}/leave', [ProjectController::class, 'leave'])->name('projects.leave');
-
     // Comments: any authenticated user can post
     Route::post('/projects/{project}/comments', [ProjectController::class, 'addComment'])->name('projects.comments.store');
 
@@ -48,7 +44,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/projects/{project}/set-permission', [ProjectController::class, 'setPermission'])->name('projects.setPermission');
     });
 
-    // Show project (keep LAST to avoid conflicts with /join and /leave)
+    // Show project (keep LAST to avoid conflicts)
     Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
 });
 
