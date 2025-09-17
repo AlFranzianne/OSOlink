@@ -10,10 +10,11 @@ class TimeLog extends Model
     use HasFactory;
 
     protected $fillable = [
-        'project_id',
         'user_id',
+        'project_id',
         'hours',
         'work_output',
+        'date',
     ];
 
     public function project()

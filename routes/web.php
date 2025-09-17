@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
 
     // Comments: any authenticated user can post
     Route::post('/projects/{project}/comments', [ProjectController::class, 'addComment'])->name('projects.comments.store');
+    Route::post('/projects/{project}/timelogs', [ProjectController::class, 'addTimeLog'])->name('projects.addTimeLog');
 
     // Admin-only routes
     Route::middleware('admin')->group(function () {
@@ -46,6 +47,9 @@ Route::middleware('auth')->group(function () {
 
     // Show project (keep LAST to avoid conflicts)
     Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+    Route::get('/projects/{project}/timelogs/{timeLog}/edit', [ProjectController::class, 'editTimeLog'])->name('projects.editTimeLog');
+    Route::put('/projects/{project}/timelogs/{timeLog}', [ProjectController::class, 'updateTimeLog'])->name('projects.updateTimeLog');
+    Route::delete('/projects/{project}/timelogs/{timeLog}', [ProjectController::class, 'deleteTimeLog'])->name('projects.deleteTimeLog');
 });
 
 // Admin panel + user management

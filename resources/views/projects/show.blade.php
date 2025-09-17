@@ -140,6 +140,79 @@
                     </div>
                 </form>               
 
+                <!-- Time Logs Section -->
+                <div class="mt-8">
+                    <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Time Logs</h2>
+                    <div class="space-y-4">
+                        @foreach($project->timeLogs->sortByDesc('date') as $timeLog)
+                            <div class="border-gray-300 dark:border-gray-700 border rounded-md p-4 dark:bg-gray-900 dark:text-gray-300">
+                                @if(request('edit_timelog') == $timeLog->id)
+                                    <!-- Inline Edit Form -->
+                                    <form method="POST" action="{{ route('projects.updateTimeLog', [$project->id, $timeLog->id]) }}">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                            <input type="number" name="hours" value="{{ old('hours', $timeLog->hours) }}" step="0.1" required class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                            <input type="date" name="date" value="{{ old('date', $timeLog->date) }}" required class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                            <textarea name="work_output" required class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm sm:col-span-3">{{ old('work_output', $timeLog->work_output) }}</textarea>
+                                        </div>
+                                        <div class="mt-4 flex gap-3">
+                                            <x-primary-button>Update</x-primary-button>
+                                            <a href="{{ route('projects.show', $project->id) }}" class="text-gray-500">Cancel</a>
+                                        </div>
+                                    </form>
+                                @else
+                                    <!-- Normal Display -->
+                                    <div class="flex justify-between items-center">
+                                        <div class="text-sm text-gray-600">
+                                            {{ $timeLog->user->name }} · 
+                                            <span class="text-xs text-gray-400">
+                                                @if($timeLog->date)
+                                                    {{ \Carbon\Carbon::parse($timeLog->date)->format('F j, Y') }}
+                                                @else
+                                                    <em>No date</em>
+                                                @endif
+                                            </span>
+                                        </div>
+                                        <div class="text-sm font-medium">
+                                            {{ $timeLog->hours }} hours
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 text-sm">
+                                        {{ $timeLog->work_output }}
+                                    </div>
+                                    @if(auth()->user()->is_admin || auth()->id() === $timeLog->user_id)
+                                        <div class="mt-2 flex">
+                                            <a href="{{ route('projects.show', [$project->id, 'edit_timelog' => $timeLog->id]) }}" class="text-blue-500">Edit</a>
+                                            <form action="{{ route('projects.deleteTimeLog', [$project->id, $timeLog->id]) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-500 ml-6" onclick="return confirm('Delete this time log?')">Delete</button>
+                                            </form>
+                                        </div>
+                                    @endif
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- Add Time Log Form (Admins and Project Members) -->
+                @if(auth()->user()->is_admin || $project->users->contains(auth()->user()->id))
+                    <form method="POST" action="{{ route('projects.addTimeLog', $project->id) }}" class="mt-6">
+                        @csrf
+                        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Add a Time Log</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <input type="number" name="hours" step="0.1" required placeholder="Hours worked" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                            <input type="date" name="date" required class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                            <textarea name="work_output" required placeholder="Work details" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm sm:col-span-3"></textarea>
+                        </div>
+                        <div class="mt-4">
+                            <x-primary-button>Add Time Log</x-primary-button>
+                        </div>
+                    </form>
+                @endif
+
             </div>
         </div>
     </div>

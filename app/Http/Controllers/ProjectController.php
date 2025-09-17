@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\User;
 use App\Models\ProjectPermission;
 use App\Models\Comment;
+use App\Models\TimeLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -182,6 +183,25 @@ class ProjectController extends Controller
         return back()->with('success', 'Comment added.');
     }
 
+    // Add time log
+    public function addTimeLog(Request $request, Project $project)
+    {
+        $validated = $request->validate([
+            'hours' => 'required|numeric|min:0.1',
+            'work_output' => 'required|string|max:2000',
+            'date' => 'required|date',
+        ]);
+
+        $project->timeLogs()->create([
+            'user_id' => Auth::id(),
+            'hours' => $validated['hours'],
+            'work_output' => $validated['work_output'],
+            'date' => $validated['date'],
+        ]);
+
+        return back()->with('success', 'Time log added.');
+    }
+
     // Join project
     public function join(Project $project)
     {
@@ -210,5 +230,48 @@ class ProjectController extends Controller
 
         $project->users()->detach($user->id);
         return back()->with('success', 'You left the project.');
+    }
+
+    // Edit time log (show form)
+    public function editTimeLog(Project $project, TimeLog $timeLog)
+    {
+        $user = auth()->user();
+        if (!$user->is_admin && $timeLog->user_id !== $user->id) {
+            abort(403, 'Unauthorized');
+        }
+        return view('projects.edit-timelog', compact('project', 'timeLog'));
+    }
+
+    // Update time log
+    public function updateTimeLog(Request $request, Project $project, TimeLog $timeLog)
+    {
+        $user = auth()->user();
+        if (!$user->is_admin && $timeLog->user_id !== $user->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        $validated = $request->validate([
+            'hours' => 'required|numeric|min:0.1',
+            'work_output' => 'required|string|max:2000',
+            'date' => 'required|date',
+        ]);
+
+        $timeLog->update($validated);
+
+        return redirect()->route('projects.show', $project->id)
+            ->with('success', 'Time log updated.');
+    }
+
+    // Delete time log
+    public function deleteTimeLog(Project $project, TimeLog $timeLog)
+    {
+        $user = auth()->user();
+        if (!$user->is_admin && $timeLog->user_id !== $user->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        $timeLog->delete();
+
+        return back()->with('success', 'Time log deleted.');
     }
 }
