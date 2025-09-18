@@ -13,21 +13,33 @@ use Illuminate\Support\Facades\Auth;
 class ProjectController extends Controller
 {
     // List projects
-    public function index()
+    public function index(Request $request)
     {
-        $user = auth()->user();
+        $query = Project::query();
 
-        if ($user->is_admin) {
-            $projects = Project::with('creator', 'users')->get();
-        } else {
-            $projects = Project::with('creator', 'users')
-                ->where(function ($query) use ($user) {
-                    $query->whereHas('users', fn($q) => $q->where('users.id', $user->id))
-                          ->orWhere('status', 'Completed')
-                          ->orWhereDoesntHave('users');
-                })
-                ->get();
+        // Only show assigned projects for non-admins
+        if (!auth()->user()->is_admin) {
+            $query->whereHas('users', function ($q) {
+                $q->where('users.id', auth()->id());
+            });
         }
+
+        // Search by name
+        if ($request->filled('search')) {
+            $query->where('name', 'ILIKE', '%' . $request->search . '%');
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Sorting
+        $sortBy = $request->get('sort_by', 'name');
+        $sortDir = $request->get('sort_dir', 'asc');
+        $query->orderBy($sortBy, $sortDir);
+
+        $projects = $query->with('users')->get();
 
         return view('projects.index', compact('projects'));
     }
