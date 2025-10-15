@@ -113,4 +113,17 @@ class AdminController extends Controller
             'changes' => $changes,
         ]);
     }
+
+    public function show($id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+        return view('adminpanel.show', compact('user'));
+    }
+    
+    public function update(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        $user->update($request->all());
+        return redirect()->route('admin.users.show', $user->id)->with('update_success', 'User updated!');
+    }
 }

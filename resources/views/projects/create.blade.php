@@ -10,6 +10,7 @@
                         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                             {{ __("Make a new project for employees to collaborate on.") }}
                         </p>
+                    </div>
                 </header>
                 <form method="POST" action="{{ route('projects.store') }}" class="mt-6 space-y-6">
                     @csrf

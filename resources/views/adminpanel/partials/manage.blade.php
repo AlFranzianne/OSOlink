@@ -82,14 +82,17 @@
                                     {{ $user->is_active ? 'Active' : 'Inactive' }}
                                 </span>
                             </td>
-                            <td class="px-4 py-2">
-                                <form action="{{ route('admin.users.toggle', $user) }}" method="POST">
-                                    @csrf
-                                    @method('PATCH')
-                                    <x-secondary-button type="submit">
-                                        {{ $user->is_active ? 'Deactivate' : 'Activate' }}
-                                    </x-secondary-button>
-                                </form>
+                            <td class="px-4 py-2 text-sm">
+                                <div class="flex justify-center gap-2">
+                                    <a href="{{ route('admin.users.show', $user->id) }}" class="text-blue-600 dark:text-blue-400 hover:underline">View</a>
+                                    <form id="toggle-form-{{ $user->id }}" action="{{ route('admin.users.toggle', $user) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <a href="#" onclick="event.preventDefault(); document.getElementById('toggle-form-{{ $user->id }}').submit();" class="text-indigo-600 dark:text-indigo-500 hover:underline">
+                                            {{ $user->is_active ? 'Deactivate' : 'Activate' }}
+                                        </a>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @endforeach

@@ -85,4 +85,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(ProjectPermission::class);
     }
+
+    public function dependents()
+    {
+        return $this->hasMany(Dependent::class);
+    }
 }

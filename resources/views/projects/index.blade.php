@@ -77,20 +77,20 @@
                     <table class="rounded-lg overflow-hidden w-full divide-y divide-gray-300 dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
-                                <th class="px-4 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-200">Name</th>
-                                <th class="px-4 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-200">Status</th>
-                                <th class="px-4 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-200">Start Date</th>
-                                <th class="px-4 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-200">End Date</th>
-                                <th class="px-4 py-2 text-center text-sm font-medium text-gray-700 dark:text-gray-200">Actions</th>
+                                <th class="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-200">Name</th>
+                                <th class="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-200">Status</th>
+                                <th class="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-200">Start Date</th>
+                                <th class="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-200">End Date</th>
+                                <th class="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-200">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-gray-200 dark:bg-gray-900">
+                        <tbody class="divide-gray-200 dark:bg-gray-900 text-sm">
                             @forelse ($projects as $project)
                                 <tr>
-                                    <td class="px-4 py-2 text-center text-sm text-gray-900 dark:text-gray-100 font-semibold">
+                                    <td class="px-4 py-2 text-center text-gray-900 dark:text-gray-100 font-semibold">
                                         {{ $project->name }}
                                     </td>
-                                    <td class="px-4 py-2 text-center text-sm">
+                                    <td class="px-4 py-2 text-center">
                                         <span class="
                                             @if($project->status == 'Completed') text-green-600 dark:text-green-400
                                             @elseif($project->status == 'In Progress') text-yellow-600 dark:text-yellow-400
@@ -100,13 +100,13 @@
                                             {{ $project->status }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-2 text-center text-sm text-gray-900 dark:text-gray-100">
+                                    <td class="px-4 py-2 text-center text-gray-900 dark:text-gray-100">
                                         {{ $project->start_date ? \Carbon\Carbon::parse($project->start_date)->format('M d, Y') : '-' }}
                                     </td>
-                                    <td class="px-4 py-2 text-center text-sm text-gray-900 dark:text-gray-100">
+                                    <td class="px-4 py-2 text-center text-gray-900 dark:text-gray-100">
                                         {{ $project->end_date ? \Carbon\Carbon::parse($project->end_date)->format('M d, Y') : '-' }}
                                     </td>
-                                    <td class="px-4 py-2 text-center text-sm">
+                                    <td class="px-4 py-2 text-center">
                                         <div class="flex justify-center gap-2">
                                             <a href="{{ route('projects.show', $project->id) }}" class="text-blue-600 dark:text-blue-400 hover:underline">View</a>
                                             @if(auth()->user()->is_admin)

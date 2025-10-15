@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\DependentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -22,6 +23,13 @@ Route::middleware('auth')->group(function () {
     // Profile picture
     Route::post('/profile/upload', [ProfileController::class, 'upload'])->name('profile.upload');
     Route::delete('/profile/remove', [ProfileController::class, 'remove'])->name('profile.remove');
+    //Dependents
+    Route::get('/dependents/create', [DependentController::class, 'create'])->name('create-dependent');
+    Route::get('/dependents/{dependent}/edit', [DependentController::class, 'edit'])->name('dependents.edit');
+    Route::delete('/dependents/{dependent}', [DependentController::class, 'destroy'])->name('dependents.destroy');
+    Route::post('/dependents', [DependentController::class, 'store'])->name('dependents.store');
+    Route::get('/dependents', [DependentController::class, 'index'])->name('dependents.index');
+    Route::put('/dependents/{dependent}', [DependentController::class, 'update'])->name('dependents.update');
 
     /**
      * Project routes
@@ -61,6 +69,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/users', [AdminController::class, 'store'])->name('admin.users.store');
     Route::patch('/admin/users/{user}/toggle', [AdminController::class, 'toggleStatus'])->name('admin.users.toggle');
     Route::get('/admin/logs', [AdminController::class, 'logs'])->name('admin.logs');
+    Route::get('/admin/users/{user}', [AdminController::class, 'show'])->name('admin.users.show');
+    Route::patch('/admin/users/{user}', [AdminController::class, 'update'])->name('admin.users.update');
 });
 
 require __DIR__.'/auth.php';

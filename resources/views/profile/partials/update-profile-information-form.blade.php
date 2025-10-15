@@ -213,6 +213,8 @@
             <x-primary-button>{{ __('Save') }}</x-primary-button>
             @if (session('update_success'))
                <p class="text-sm text-green-600 dark:text-green-400">{{ session('update_success') }}</p>
+            @elseif (session('create_success'))
+               <p class="text-sm text-green-600 dark:text-green-400">{{ session('create_success') }}</p>
             @elseif (session('upload_success'))
                <p class="text-sm text-green-600 dark:text-green-400">{{ session('upload_success') }}</p>
             @elseif (session('remove_success'))
