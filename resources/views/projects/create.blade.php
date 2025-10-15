@@ -67,7 +67,7 @@
                             class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
                             @forelse($users as $user)
                                 <option value="{{ $user->id }}" {{ (collect(old('user_ids'))->contains($user->id)) ? 'selected' : '' }}>
-                                    {{ $user->name }} — {{ $user->email }}
+                                    {{ $user->first_name }} {{ $user->middle_name }} {{ $user->last_name }} — {{ $user->email }} — {{ $user->job_type }}
                                 </option>
                             @empty
                                 <option disabled>No users available</option>

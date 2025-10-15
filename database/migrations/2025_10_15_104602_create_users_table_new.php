@@ -13,19 +13,27 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('first_name');
+            $table->string('middle_name')->nullable();
+            $table->string('last_name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('job_type');
+            $table->string('employment_status');
+            $table->string('hourly_rate');
+            $table->enum('gender', ['Male', 'Female', 'Other', 'Prefer not to say'])->nullable();
+            $table->string('phone')->nullable();
+            $table->date('birthday')->nullable();
+            $table->string('country')->nullable();
+            $table->string('state')->nullable();
+            $table->string('zip')->nullable();
+            $table->text('address')->nullable();
+            $table->string('profile_picture')->nullable(); // store image path
             $table->rememberToken();
             $table->timestamps();
             $table->boolean('is_admin')->default(false);
             $table->boolean('is_active')->default(true);
-            $table->enum('gender', ['Male', 'Female', 'Other', 'Prefer not to say'])->nullable();
-            $table->string('phone')->nullable();
-            $table->date('birthday')->nullable();
-            $table->string('country', 100)->nullable();
-            $table->text('address')->nullable();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

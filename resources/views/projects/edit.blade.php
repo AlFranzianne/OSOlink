@@ -69,7 +69,7 @@
                             @forelse($users as $user)
                                 <option value="{{ $user->id }}" 
                                     {{ (collect(old('user_ids', $project->users->pluck('id')))->contains($user->id)) ? 'selected' : '' }}>
-                                    {{ $user->name }} — {{ $user->email }}
+                                    {{ $user->first_name }} {{ $user->middle_name }} {{ $user->last_name }} — {{ $user->email }} — {{ $user->job_type }}
                                 </option>
                             @empty
                                 <option disabled>No users available</option>

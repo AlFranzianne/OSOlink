@@ -16,7 +16,7 @@ class AdminController extends Controller
         // Search by name or email
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
+                $q->whereRaw("CONCAT(first_name, ' ', last_name) ILIKE ?", ['%' . $request->search . '%'])
                 ->orWhere('email', 'like', '%' . $request->search . '%');
             });
         }
@@ -30,7 +30,9 @@ class AdminController extends Controller
         $sortField = $request->get('sort', 'name');
         $sortOrder = $request->get('order', 'asc');
 
-        if (in_array($sortField, ['name', 'email', 'created_at'])) {
+        if ($sortField === 'name') {
+            $query->orderBy('first_name', $sortOrder)->orderBy('last_name', $sortOrder);
+        } elseif (in_array($sortField, ['email', 'created_at'])) {
             $query->orderBy($sortField, $sortOrder);
         }
 
@@ -39,7 +41,7 @@ class AdminController extends Controller
 
         if ($request->filled('log_user')) {
             $logQuery->whereHas('user', function ($q) use ($request) {
-                $q->where('name', 'like', "%{$request->log_user}%");
+                $q->whereRaw("CONCAT(first_name, ' ', last_name) ILIKE ?", ["%{$request->log_user}%"]);
             });
         }
 
@@ -58,29 +60,39 @@ class AdminController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:users,email',
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'job_type' => 'required|string|max:255',
+            'employment_status' => 'required|string',
+            'hourly_rate' => 'required|numeric|min:0',
             'password' => 'required|string|min:8|confirmed',
+            'is_admin' => 'sometimes|boolean',
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'is_active' => true,
-            'is_admin' => $request->has('is_admin'), 
+            'first_name' => $validated['first_name'],
+            'middle_name' => $validated['middle_name'] ?? null,
+            'last_name' => $validated['last_name'],
+            'email' => $validated['email'],
+            'job_type' => $validated['job_type'],
+            'employment_status' => $validated['employment_status'],
+            'hourly_rate' => $validated['hourly_rate'],
+            'password' => bcrypt($validated['password']),
+            'is_admin' => $request->has('is_admin'),
         ]);
 
         $this->logAction('Created User', $user);
 
-        return redirect()->route('adminpanel.admin')->with('success', 'User created successfully!');
+        return redirect()->route('adminpanel.admin')->with('create_success', 'User created successfully!');
     }
 
     public function toggleStatus(User $user)
     {
         if ($user->id === auth()->id()) {
-            return redirect()->route('adminpanel.admin')->with('error', 'You cannot deactivate your own account!');
+            return redirect()->route('adminpanel.admin')->with('selfdeactivation', 'You cannot deactivate your own account!');
         }
 
         $user->is_active = !$user->is_active;
@@ -88,7 +100,7 @@ class AdminController extends Controller
 
         $this->logAction($user->is_active ? 'Activated User' : 'Deactivated User', $user);
 
-        return redirect()->route('adminpanel.admin')->with('success', 'User status updated!');
+        return redirect()->route('adminpanel.admin')->with('toggle_success', 'User status updated!');
     }
 
     protected function logAction($action, $target = null, $changes = null)

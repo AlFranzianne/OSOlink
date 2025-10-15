@@ -50,9 +50,17 @@
                     </select>
 
                     <!-- Apply Button -->
-                    <x-primary-button>
-                        Apply
-                    </x-primary-button>
+                    
+                    <div class="flex items-center gap-4">
+                        <x-primary-button>
+                            Apply
+                        </x-primary-button>
+                        @if (session('toggle_success'))
+                            <p class="text-sm text-green-600 dark:text-green-400">{{ session('toggle_success') }}</p>
+                        @elseif (session('selfdeactivation'))
+                            <p class="text-sm text-green-600 dark:text-red-400">{{ session('selfdeactivation') }}</p>
+                        @endif
+                    </div>
                 </form>
             </div>
             <table class="rounded-lg overflow-hidden w-full divide-y divide-gray-300 dark:divide-gray-700">
@@ -67,7 +75,7 @@
                 <tbody class="divide-gray-200 dark:bg-gray-900">
                     @foreach ($users as $user)
                         <tr>
-                            <td class="px-4 py-2 text-center text-sm text-gray-900 dark:text-gray-100">{{ $user->name }}</td>
+                            <td class="px-4 py-2 text-center text-sm text-gray-900 dark:text-gray-100">{{ $user->first_name }} {{ $user->middle_name }} {{ $user->last_name }}</td>
                             <td class="px-4 py-2 text-center text-sm text-gray-900 dark:text-gray-100">{{ $user->email }}</td>
                             <td class="px-4 py-2 text-center text-sm">
                                 <span class="{{ $user->is_active ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">

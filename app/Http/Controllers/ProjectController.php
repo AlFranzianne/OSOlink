@@ -201,7 +201,12 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'hours' => 'required|numeric|min:0.1',
             'work_output' => 'required|string|max:2000',
-            'date' => 'required|date',
+            'date' => [
+                'required',
+                'date',
+                'after_or_equal:' . $project->start_date,
+                'before_or_equal:' . $project->end_date,
+            ],
         ]);
 
         $project->timeLogs()->create([
@@ -265,7 +270,12 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'hours' => 'required|numeric|min:0.1',
             'work_output' => 'required|string|max:2000',
-            'date' => 'required|date',
+            'date' => [
+                'required',
+                'date',
+                'after_or_equal:' . $project->start_date,
+                'before_or_equal:' . $project->end_date,
+            ],
         ]);
 
         $timeLog->update($validated);

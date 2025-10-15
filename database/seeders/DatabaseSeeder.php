@@ -19,8 +19,12 @@ class DatabaseSeeder extends Seeder
         User::firstOrCreate(
             ['email' => 'admin@admin.com'], // lookup key
             [
-                'name' => 'Admin',
+                'first_name' => 'Admin',
+                'last_name' => 'Admin',
                 'password' => Hash::make('password'), // change to a secure password
+                'job_type' => 'Administrator',
+                'employment_status' => 'Full-time',
+                'hourly_rate' => 0,
                 'is_admin' => true,
                 'is_active' => true,
             ]

@@ -42,8 +42,8 @@
                     @foreach($project->users as $user)
                         <li class="flex justify-between items-center border-gray-300 dark:border-gray-700 border rounded-md p-3 dark:bg-gray-900 dark:text-gray-300">
                             <div>
-                                <div class="font-medium">{{ $user->name }}</div>
-                                <div class="text-sm text-gray-500">{{ $user->email }}</div>
+                                <div class="font-medium">{{ $user->first_name }} {{ $user->middle_name }} {{ $user->last_name }}</div>
+                                <div class="text-sm text-gray-500">{{ $user->email }} | {{ $user->job_type }}</div>
                             </div>
 
                             <!-- Admin can remove users (if project not completed) -->
@@ -67,7 +67,7 @@
                         <select name="user_id" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
                             @foreach(\App\Models\User::where('is_active', true)->where('is_admin', false)->get() as $user)
                                 @unless($project->users->contains($user->id))
-                                    <option value="{{ $user->id }}">{{ $user->name }} — {{ $user->email }}</option>
+                                    <option value="{{ $user->id }}">{{ $user->first_name }} {{ $user->middle_name }} {{ $user->last_name }} — {{ $user->email }} — {{ $user->job_type }}</option>
                                 @endunless
                             @endforeach
                         </select>
@@ -107,8 +107,8 @@
                             @forelse($project->comments->whereNull('parent_id')->sortByDesc('created_at') as $comment)
                                 <div class="border-gray-300 dark:border-gray-700 border rounded-md p-3 dark:bg-gray-900 dark:text-gray-300">
                                     <!-- Comment header -->
-                                    <div class="text-sm text-gray-600">
-                                        {{ $comment->user->name }} · 
+                                    <div class="text-sm text-gray-400">
+                                        {{ $comment->user->first_name }} {{ $comment->user->middle_name }} {{ $comment->user->last_name }} · {{ $comment->user->job_type }} · 
                                         <span class="text-xs text-gray-400">
                                             {{ $comment->created_at->diffForHumans() }}
                                         </span>
@@ -121,8 +121,8 @@
                                     <div class="ml-6 mt-3 space-y-2">
                                         @foreach($comment->replies()->orderBy('created_at')->get() as $reply)
                                             <div class="border-l-2 pl-3">
-                                                <div class="text-sm text-gray-600">
-                                                    {{ $reply->user->name }} · 
+                                                <div class="text-sm text-gray-400">
+                                                    {{ $reply->user->first_name }} {{ $reply->user->middle_name }} {{ $reply->user->last_name }} · {{ $reply->user->job_type }} · 
                                                     <span class="text-xs text-gray-400">
                                                         {{ $reply->created_at->diffForHumans() }}
                                                     </span>
@@ -179,9 +179,12 @@
                                             @csrf
                                             @method('PUT')
                                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                                <input type="number" name="hours" value="{{ old('hours', $timeLog->hours) }}" step="0.1" required class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                                                <input type="date" name="date" value="{{ old('date', $timeLog->date) }}" required class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                                                <textarea name="work_output" required class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm sm:col-span-3">{{ old('work_output', $timeLog->work_output) }}</textarea>
+                                                <input type="number" name="hours" value="{{ old('hours', $timeLog->hours) }}" step="0.1" required 
+                                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                                <input type="date" name="date" value="{{ old('date', $timeLog->date) }}" required min="{{ $project->start_date }}" max="{{ $project->end_date }}"
+                                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                                <textarea name="work_output" required 
+                                                class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm sm:col-span-3">{{ old('work_output', $timeLog->work_output) }}</textarea>
                                             </div>
                                             <div class="mt-4 flex gap-3">
                                                 <x-primary-button>Update</x-primary-button>
@@ -191,8 +194,8 @@
                                     @else
                                         <!-- Normal Display -->
                                         <div class="flex justify-between items-center">
-                                            <div class="text-sm text-gray-600">
-                                                {{ $timeLog->user->name }} · 
+                                            <div class="text-sm text-gray-400">
+                                                {{ $timeLog->user->first_name }} {{ $timeLog->user->middle_name }} {{ $timeLog->user->last_name }} · {{ $timeLog->user->job_type }} · 
                                                 <span class="text-xs text-gray-400">
                                                     @if($timeLog->date)
                                                         {{ \Carbon\Carbon::parse($timeLog->date)->format('F j, Y') }}
@@ -229,9 +232,12 @@
                                 @csrf
                                 <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Add a Time Log</h2>
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    <input type="number" name="hours" step="0.1" required placeholder="Hours worked" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                                    <input type="date" name="date" required class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                                    <textarea name="work_output" required placeholder="Work details" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm sm:col-span-3"></textarea>
+                                    <input type="number" name="hours" step="0.1" required placeholder="Hours worked" 
+                                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                    <input type="date" name="date" required min="{{ $project->start_date }}" max="{{ $project->end_date }}"
+                                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                    <textarea name="work_output" required placeholder="Work details" 
+                                    class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm sm:col-span-3"></textarea>
                                 </div>
                                 <div class="mt-4">
                                     <x-primary-button>Add Time Log</x-primary-button>

@@ -69,7 +69,7 @@
                 @foreach($logs as $log)
                     <tr>
                         <td class="px-4 py-2 text-center text-sm text-gray-900 dark:text-gray-100">
-                            {{ $log->user->name ?? 'System' }}
+                            {{ $log->user->first_name ?? 'System' }} {{ $log->user->middle_name ?? '' }} {{ $log->user->last_name ?? '' }}
                         </td>
                         <td class="px-4 py-2 text-center text-sm text-gray-900 dark:text-gray-100">
                             {{ $log->action }}
