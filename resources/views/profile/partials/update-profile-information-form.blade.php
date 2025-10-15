@@ -162,10 +162,55 @@
             </div>
         </div>
 
+        <div class="flex items-center gap-4 mt-4">
+            <!-- Social Security ID -->
+            <div class="flex-1">
+                <x-input-label for="social_security_id" :value="__('Social Security ID')" />
+                <x-text-input id="social_security_id" name="social_security_id" type="text" class="mt-1 block w-full" :value="old('social_security_id', $user->social_security_id)" autocomplete="social_security_id" />
+                <x-input-error class="mt-2" :messages="$errors->get('social_security_id')" />
+            </div>
+
+            <!-- Taxpayer ID -->
+            <div class="flex-1">
+                <x-input-label for="taxpayer_id" :value="__('Taxpayer ID')" />
+                <x-text-input id="taxpayer_id" name="taxpayer_id" type="text" class="mt-1 block w-full" :value="old('taxpayer_id', $user->taxpayer_id)" autocomplete="taxpayer_id" />
+                <x-input-error class="mt-2" :messages="$errors->get('taxpayer_id')" />
+            </div>
+
+            <!-- Health Insurance ID -->
+            <div class="flex-1">
+                <x-input-label for="health_insurance_id" :value="__('Healthcare Insurance ID')" />
+                <x-text-input id="health_insurance_id" name="health_insurance_id" type="text" class="mt-1 block w-full" :value="old('health_insurance_id', $user->health_insurance_id)" autocomplete="health_insurance_id" />
+                <x-input-error class="mt-2" :messages="$errors->get('health_insurance_id')" />
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4 mt-4">
+            <!-- Housing/Savings ID -->
+            <div class="flex-1">
+                <x-input-label for="savings_id" :value="__('Housing/Savings ID')" />
+                <x-text-input id="savings_id" name="savings_id" type="text" class="mt-1 block w-full" :value="old('savings_id', $user->savings_id)" autocomplete="savings_id" />
+                <x-input-error class="mt-2" :messages="$errors->get('savings_id')" />
+            </div>
+
+            <!-- Bank Name -->
+            <div class="flex-1">
+                <x-input-label for="bank_name" :value="__('Bank Name')" />
+                <x-text-input id="bank_name" name="bank_name" type="text" class="mt-1 block w-full" :value="old('bank_name', $user->bank_name)" autocomplete="bank_name" />
+                <x-input-error class="mt-2" :messages="$errors->get('bank_name')" />
+            </div>
+
+            <!-- Bank Account Number -->
+            <div class="flex-1">
+                <x-input-label for="bank_account_number" :value="__('Bank Account Number')" />
+                <x-text-input id="bank_account_number" name="bank_account_number" type="text" class="mt-1 block w-full" :value="old('bank_account_number', $user->bank_account_number)" autocomplete="bank_account_number" />
+                <x-input-error class="mt-2" :messages="$errors->get('bank_account_number')" />
+            </div>
+        </div>
+
         <!-- Save -->
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
-
             @if (session('update_success'))
                <p class="text-sm text-green-600 dark:text-green-400">{{ session('update_success') }}</p>
             @elseif (session('upload_success'))
@@ -175,13 +220,4 @@
             @endif
         </div>
     </form>
-    @if ($errors->any())
-    <div class="mb-4">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li class="text-red-600">{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
 </section>

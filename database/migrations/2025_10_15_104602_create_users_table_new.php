@@ -29,7 +29,13 @@ return new class extends Migration
             $table->string('state')->nullable();
             $table->string('zip')->nullable();
             $table->text('address')->nullable();
-            $table->string('profile_picture')->nullable(); // store image path
+            $table->string('social_security_id')->nullable();
+            $table->string('taxpayer_id')->nullable();
+            $table->string('health_insurance_id')->nullable();
+            $table->string('savings_id')->nullable();
+            $table->string('bank_name')->nullable();
+            $table->string('bank_account_number')->nullable();
+            $table->string('profile_picture')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->boolean('is_admin')->default(false);
