@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
-use Rinvex\Country\CountryLoader;
+use Rinvex\Country\CountryLoader;   
 
 class ProfileController extends Controller
 {
