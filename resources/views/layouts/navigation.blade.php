@@ -22,6 +22,11 @@
                         {{ __('Projects') }}
                     </x-nav-link>
 
+                    <!-- Leaves -->
+                    <x-nav-link :href="route('leaves.index')" :active="request()->routeIs('leaves.*')">
+                        {{ __('Leaves') }}
+                    </x-nav-link>
+
                     <!-- Admin-only links -->
                     @if (Auth::check() && Auth::user()->is_admin)
                         <!-- Admin Panel -->
@@ -32,6 +37,14 @@
                         <!-- Payroll (next to Admin Panel) -->
                         <x-nav-link :href="route('payroll')" :active="request()->routeIs('payroll')">
                             {{ __('Payroll') }}
+                        </x-nav-link>
+                    @endif
+
+                    <!-- Non-admin links -->
+                    @if (Auth::check() && !Auth::user()->is_admin)
+                        <!-- Payslip -->
+                        <x-nav-link :href="route('payslip.index')" :active="request()->routeIs('payslip.*')">
+                            {{ __('Payslip') }}
                         </x-nav-link>
                     @endif
                 </div>
@@ -109,6 +122,10 @@
                 {{ __('Projects') }}
             </x-responsive-nav-link>
 
+            <x-responsive-nav-link :href="route('leaves.index')" :active="request()->routeIs('leaves.*')">
+                {{ __('Leaves') }}
+            </x-responsive-nav-link>
+
             @if (Auth::check() && Auth::user()->is_admin)
                 <x-responsive-nav-link :href="route('adminpanel.admin')" :active="request()->routeIs('adminpanel.admin')">
                     {{ __('Admin Panel') }}
@@ -116,6 +133,12 @@
 
                 <x-responsive-nav-link :href="route('payroll')" :active="request()->routeIs('payroll')">
                     {{ __('Payroll') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if (Auth::check() && !Auth::user()->is_admin)
+                <x-responsive-nav-link :href="route('payslip.index')" :active="request()->routeIs('payslip.*')">
+                    {{ __('Payslip') }}
                 </x-responsive-nav-link>
             @endif
         </div>
