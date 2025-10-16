@@ -11,12 +11,8 @@ class PayrollController extends Controller
 {
     public function index()
     {
-        $payrolls = Auth::user()->is_admin
-            ? Payroll::with('user')->latest()->paginate(10)
-            : Payroll::with('user')->where('user_id', Auth::id())->latest()->paginate(10);
-
-        $employees = User::where('is_admin', false)->where('is_active', true)->get();
-
+        $payrolls = Payroll::with('user')->paginate(10);
+        $employees = User::all();
         return view('payroll.index', compact('payrolls', 'employees'));
     }
 
@@ -24,78 +20,58 @@ class PayrollController extends Controller
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
-            'gross_pay' => 'required|numeric|min:0',
-            'deductions' => 'nullable|numeric|min:0',
-            'pay_period_start' => 'nullable|date',
-            'pay_period_end' => 'nullable|date',
+            'gross_pay' => 'required|numeric',
+            'deductions' => 'nullable|numeric',
         ]);
 
-        $deductions = $request->input('deductions', 0);
-        $tax = 0;
-        $other = $deductions;
-
-        $netPay = $request->gross_pay - ($tax + $other);
+        $netPay = $request->gross_pay - ($request->deductions ?? 0);
 
         Payroll::create([
             'user_id' => $request->user_id,
-            'hours_worked' => $request->hours_worked ?? 0,
-            'hourly_rate' => $request->hourly_rate ?? 0,
             'gross_pay' => $request->gross_pay,
-            'tax_deduction' => $tax,
-            'other_deductions' => $other,
+            'deductions' => $request->deductions ?? 0,
             'net_pay' => $netPay,
-            'pay_period_start' => $request->pay_period_start ?? now()->startOfMonth()->toDateString(),
-            'pay_period_end' => $request->pay_period_end ?? now()->endOfMonth()->toDateString(),
-            'status' => 'Pending',
+            'status' => 'Processed',
         ]);
 
-        return redirect()->route('payroll.payroll')->with('success', 'Payroll record created successfully.');
+        return redirect()->route('payroll.index')->with('success', 'Payroll added successfully.');
     }
 
-    public function edit(Payroll $payroll)
+    public function edit($id)
     {
-        $employees = User::where('is_admin', false)->where('is_active', true)->get();
-        return view('payroll.index', compact('payroll', 'employees'));
+        $payroll = Payroll::findOrFail($id);
+        $employees = User::all();
+        $payrolls = Payroll::with('user')->paginate(10);
+
+        return view('payroll.index', compact('payroll', 'payrolls', 'employees'));
     }
 
-    public function update(Request $request, Payroll $payroll)
+    public function update(Request $request, $id)
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
-            'gross_pay' => 'required|numeric|min:0',
-            'deductions' => 'nullable|numeric|min:0',
-            'status' => 'required|string',
+            'gross_pay' => 'required|numeric',
+            'deductions' => 'nullable|numeric',
         ]);
 
-        $deductions = $request->input('deductions', null);
-
-        if ($deductions !== null) {
-            $tax = $payroll->tax_deduction ?? 0;
-            $other = $deductions;
-        } else {
-            $tax = $request->input('tax_deduction', $payroll->tax_deduction ?? 0);
-            $other = $request->input('other_deductions', $payroll->other_deductions ?? 0);
-        }
-
-        $netPay = $request->gross_pay - ($tax + $other);
+        $payroll = Payroll::findOrFail($id);
+        $netPay = $request->gross_pay - ($request->deductions ?? 0);
 
         $payroll->update([
             'user_id' => $request->user_id,
-            'hours_worked' => $request->hours_worked ?? $payroll->hours_worked,
-            'hourly_rate' => $request->hourly_rate ?? $payroll->hourly_rate,
             'gross_pay' => $request->gross_pay,
-            'tax_deduction' => $tax,
-            'other_deductions' => $other,
+            'deductions' => $request->deductions ?? 0,
             'net_pay' => $netPay,
-            'status' => $request->status,
         ]);
 
-        return redirect()->route('payroll.payroll')->with('success', 'Payroll record updated successfully.');
+        return redirect()->route('payroll.index')->with('success', 'Payroll updated successfully.');
     }
 
-    public function destroy(Payroll $payroll)
+    public function destroy($id)
     {
+        $payroll = Payroll::findOrFail($id);
         $payroll->delete();
-        return redirect()->route('payroll.payroll')->with('success', 'Payroll record deleted successfully.');
+
+        return redirect()->route('payroll.index')->with('success', 'Payroll deleted successfully.');
     }
 }

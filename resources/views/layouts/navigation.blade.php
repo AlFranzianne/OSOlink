@@ -35,7 +35,7 @@
                         </x-nav-link>
 
                         <!-- Payroll (next to Admin Panel) -->
-                        <x-nav-link :href="route('payroll')" :active="request()->routeIs('payroll')">
+                        <x-nav-link :href="route('payroll.index')" :active="request()->routeIs('payroll.*')">
                             {{ __('Payroll') }}
                         </x-nav-link>
                     @endif
@@ -131,7 +131,7 @@
                     {{ __('Admin Panel') }}
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link :href="route('payroll')" :active="request()->routeIs('payroll')">
+                <x-responsive-nav-link :href="route('payroll.index')" :active="request()->routeIs('payroll.*')">
                     {{ __('Payroll') }}
                 </x-responsive-nav-link>
             @endif
