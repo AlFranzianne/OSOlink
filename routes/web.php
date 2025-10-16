@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\DependentController;
 use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\PayslipController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -32,9 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dependents', [DependentController::class, 'index'])->name('dependents.index');
     Route::put('/dependents/{dependent}', [DependentController::class, 'update'])->name('dependents.update');
 
-    /**
-     * Project routes
-     */
+    // Projects
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
     Route::post('/projects/{project}/comments', [ProjectController::class, 'addComment'])->name('projects.comments.store');
     Route::post('/projects/{project}/timelogs', [ProjectController::class, 'addTimeLog'])->name('projects.addTimeLog');
@@ -55,15 +54,18 @@ Route::middleware('auth')->group(function () {
     Route::put('/projects/{project}/timelogs/{timeLog}', [ProjectController::class, 'updateTimeLog'])->name('projects.updateTimeLog');
     Route::delete('/projects/{project}/timelogs/{timeLog}', [ProjectController::class, 'deleteTimeLog'])->name('projects.deleteTimeLog');
 
-    /**
-     * Payroll routes
-     */
-    Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll');
-    Route::post('/payroll', [PayrollController::class, 'store'])->name('payroll.store');
-    Route::get('/payroll/{payroll}/edit', [PayrollController::class, 'edit'])->name('payroll.edit');
-    Route::put('/payroll/{payroll}', [PayrollController::class, 'update'])->name('payroll.update');
-    Route::delete('/payroll/{payroll}', [PayrollController::class, 'destroy'])->name('payroll.destroy');
-}); // ✅ this closing brace was missing earlier!
+    // Payroll routes (admin area) - index route name changed to payroll.payroll
+    Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.payroll')->middleware('admin');
+    Route::post('/payroll', [PayrollController::class, 'store'])->name('payroll.store')->middleware('admin');
+    Route::get('/payroll/{payroll}/edit', [PayrollController::class, 'edit'])->name('payroll.edit')->middleware('admin');
+    Route::put('/payroll/{payroll}', [PayrollController::class, 'update'])->name('payroll.update')->middleware('admin');
+    Route::delete('/payroll/{payroll}', [PayrollController::class, 'destroy'])->name('payroll.destroy')->middleware('admin');
+
+    // Payslip routes (employees access their own; admin can view all via payroll)
+    Route::get('/payslips', [PayslipController::class, 'index'])->name('payslip.index');
+    Route::post('/payslips', [PayslipController::class, 'store'])->name('payslip.store')->middleware('admin');
+    Route::get('/payslips/{payslip}', [PayslipController::class, 'show'])->name('payslip.show');
+});
 
 // Admin panel routes
 Route::middleware(['auth', 'admin'])->group(function () {
