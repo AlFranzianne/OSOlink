@@ -29,6 +29,7 @@ class User extends Authenticatable
         'phone',
         'birthday',
         'country',
+        'currency_code',
         'state',
         'zip',
         'address',

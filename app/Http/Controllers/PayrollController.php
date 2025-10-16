@@ -10,15 +10,16 @@ class PayrollController extends Controller
 {
     public function index()
     {
-        // Include employment_status and hourly_rate from users table
+        // Include employment_status and hourly_rate from users for auto-fill
         $employees = User::select('id','first_name','last_name','employment_status','hourly_rate')
             ->orderBy('first_name')
             ->get();
 
-        $payrolls = Payroll::with('user')->latest()->paginate(10);
-
-        // Status → base mapping
+        // Status → base mapping from config
         $baseByStatus = config('payroll.default_base_by_status');
+
+        // List payrolls with user relation
+        $payrolls = Payroll::with('user')->latest()->paginate(10);
 
         return view('payroll.index', compact('employees','payrolls','baseByStatus'));
     }
@@ -60,10 +61,9 @@ class PayrollController extends Controller
             ->orderBy('first_name')
             ->get();
 
-        $payrolls = Payroll::with('user')->latest()->paginate(10);
-
-        // Status → base mapping
         $baseByStatus = config('payroll.default_base_by_status');
+
+        $payrolls = Payroll::with('user')->latest()->paginate(10);
 
         return view('payroll.index', compact('employees','payrolls','payroll','baseByStatus'));
     }

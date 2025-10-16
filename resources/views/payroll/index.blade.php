@@ -1,191 +1,247 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Payroll Management
-        </h2>
-    </x-slot>
-
     @php
-        $payrolls = $payrolls ?? collect();
-        $employees = $employees ?? collect();
-        $baseByStatus = $baseByStatus ?? [];
-        $editing = isset($payroll);
-        $formAction = $editing ? route('payroll.update', $payroll->id) : route('payroll.store');
-        $selectedUser = old('user_id', $payroll->user_id ?? '');
+        $employees      = $employees      ?? collect();
+        $payrolls       = $payrolls       ?? collect();
+        $baseByStatus   = $baseByStatus   ?? [];
+        $payroll        = $payroll        ?? null;
+        $editing        = isset($payroll);
+        $formAction     = $editing ? route('payroll.update', $payroll->id) : route('payroll.store');
+        $selectedUser   = old('user_id', $payroll->user_id ?? '');
+        $success        = session('success');
+        $fmt            = fn($v)=>number_format((float)$v, 2);
+
+        // Force CAD for display
+        $currencySymbol = 'C$';
     @endphp
 
-    <div class="py-10">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            @if(session('success'))
-                <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
-                    {{ session('success') }}
+    <div class="py-12 bg-gray-50 dark:bg-gray-900 min-h-screen">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+            <!-- Add Payroll -->
+            <section>
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 text-gray-900 dark:text-gray-100">
+                        <header class="mb-6">
+                            <h3 class="text-lg sm:text-xl font-semibold">
+                                {{ $editing ? 'Edit Payroll' : 'Add Payroll' }}
+                            </h3>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                Select an employee and enter payroll details.
+                            </p>
+                        </header>
+
+                        <form action="{{ $formAction }}" method="POST" class="space-y-6">
+                            @csrf
+                            @if($editing) @method('PUT') @endif
+
+                            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                <!-- Employee -->
+                                <div>
+                                    <x-input-label for="user_id" :value="__('Employee')" />
+                                    <select id="user_id" name="user_id" required
+                                            class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                                        <option value="">-- select employee --</option>
+                                        @foreach ($employees as $e)
+                                            <option value="{{ $e->id }}"
+                                                data-status="{{ $e->employment_status ?? '' }}"
+                                                data-hourly="{{ $e->hourly_rate ?? '' }}"
+                                                @selected((string)$e->id === (string)$selectedUser)
+                                            >
+                                                {{ $e->first_name }} {{ $e->last_name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <x-input-error class="mt-2" :messages="$errors->get('user_id')" />
+                                </div>
+
+                                <!-- Employment Status -->
+                                <div>
+                                    <x-input-label for="employment_status" :value="__('Employment Status')" />
+                                    <select id="employment_status" name="employment_status"
+                                            class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                                        <option value="">Select Employment Status</option>
+                                        <option value="Full-time"   @selected(old('employment_status', $payroll->employment_status ?? '') == 'Full-time')>Full-time</option>
+                                        <option value="Part-time"   @selected(old('employment_status', $payroll->employment_status ?? '') == 'Part-time')>Part-time</option>
+                                        <option value="Contractual" @selected(old('employment_status', $payroll->employment_status ?? '') == 'Contractual')>Contractual</option>
+                                        <option value="Intern"      @selected(old('employment_status', $payroll->employment_status ?? '') == 'Intern')>Intern</option>
+                                    </select>
+                                    <x-input-error class="mt-2" :messages="$errors->get('employment_status')" />
+                                </div>
+
+                                <!-- Hourly Rate -->
+                                <div>
+                                    <x-input-label for="hourly_rate" :value="__('Hourly Rate')" />
+                                    <x-text-input id="hourly_rate" name="hourly_rate" type="number" step="0.01" min="0"
+                                                  class="mt-1 block w-full"
+                                                  :value="old('hourly_rate', $payroll->hourly_rate ?? '')" />
+                                    <x-input-error class="mt-2" :messages="$errors->get('hourly_rate')" />
+                                </div>
+
+                                <!-- Base Pay -->
+                                <div>
+                                    <x-input-label for="base_pay" :value="__('Base Pay')" />
+                                    <x-text-input id="base_pay" name="base_pay" type="number" step="0.01" min="0"
+                                                  class="mt-1 block w-full"
+                                                  :value="old('base_pay', $payroll->base_pay ?? '')" />
+                                    <x-input-error class="mt-2" :messages="$errors->get('base_pay')" />
+                                </div>
+
+                                <!-- Hours Worked -->
+                                <div>
+                                    <x-input-label for="hours_worked" :value="__('Hours Worked')" />
+                                    <x-text-input id="hours_worked" name="hours_worked" type="number" step="0.01" min="0"
+                                                  class="mt-1 block w-full"
+                                                  :value="old('hours_worked', $payroll->hours_worked ?? '')" />
+                                    <x-input-error class="mt-2" :messages="$errors->get('hours_worked')" />
+                                </div>
+
+                                <!-- Gross Pay -->
+                                <div>
+                                    <x-input-label for="gross_pay" :value="__('Gross Pay')" />
+                                    <x-text-input id="gross_pay" name="gross_pay" type="number" step="0.01" min="0"
+                                                  class="mt-1 block w-full"
+                                                  :value="old('gross_pay', $payroll->gross_pay ?? '')" />
+                                    <x-input-error class="mt-2" :messages="$errors->get('gross_pay')" />
+                                </div>
+
+                                <!-- Deductions -->
+                                <div class="md:col-span-2">
+                                    <x-input-label for="deductions" :value="__('Deductions')" />
+                                    <x-text-input id="deductions" name="deductions" type="number" step="0.01" min="0"
+                                                  class="mt-1 block w-full"
+                                                  :value="old('deductions', $payroll->deductions ?? 0)" />
+                                    <x-input-error class="mt-2" :messages="$errors->get('deductions')" />
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-4">
+                                @if($editing)
+                                    <a href="{{ route('payroll.index') }}" class="text-sm text-gray-600 dark:text-gray-300 hover:underline">Cancel</a>
+                                @endif
+
+                                <x-primary-button>
+                                    {{ $editing ? 'Update Payroll' : 'Add Payroll' }}
+                                </x-primary-button>
+
+                                @if($success)
+                                    <p class="text-sm text-green-600 dark:text-green-400">{{ $success }}</p>
+                                @endif
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            @endif
+            </section>
 
-            @if($errors->any())
-                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                    <ul class="list-disc list-inside">
-                        @foreach($errors->all() as $err)
-                            <li>{{ $err }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+            <!-- Payroll Records -->
+            <section>
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <header class="mb-4">
+                            <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">Payroll Records</h3>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Review, edit, or delete payroll entries.</p>
+                        </header>
 
-            @if(Auth::check() && Auth::user()->is_admin)
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">
-                    {{ $editing ? 'Edit Payroll' : 'Add New Payroll' }}
-                </h3>
-
-                <form action="{{ $formAction }}" method="POST" class="space-y-4">
-                    @csrf
-                    @if($editing) @method('PUT') @endif
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Employee</label>
-                        <select name="user_id" id="user_id" class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:text-gray-200" required>
-                            <option value="">-- select employee --</option>
-                            @foreach ($employees as $employee)
-                                <option
-                                    value="{{ $employee->id }}"
-                                    data-status="{{ $employee->employment_status ?? '' }}"
-                                    data-hourly="{{ $employee->hourly_rate ?? '' }}"
-                                    @selected((string)$employee->id === (string)$selectedUser)
-                                >
-                                    {{ $employee->first_name }} {{ $employee->last_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Employment Status</label>
-                            <select name="employment_status" id="employment_status" class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:text-gray-200">
-                                <option value="">-- select status --</option>
-                                <option value="Full-time"   @selected(old('employment_status', $payroll->employment_status ?? '') === 'Full-time')>Full-time</option>
-                                <option value="Part-time"   @selected(old('employment_status', $payroll->employment_status ?? '') === 'Part-time')>Part-time</option>
-                                <option value="Contractual" @selected(old('employment_status', $payroll->employment_status ?? '') === 'Contractual')>Contractual</option>
-                                <option value="Intern"      @selected(old('employment_status', $payroll->employment_status ?? '') === 'Intern')>Intern</option>
-                            </select>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead class="bg-gray-50 dark:bg-gray-700/50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Employee</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Type</th>
+                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Base</th>
+                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Hourly</th>
+                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Hours</th>
+                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Gross</th>
+                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Deductions</th>
+                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Net</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Status</th>
+                                        <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                                    @forelse ($payrolls as $row)
+                                        @php
+                                            $gross = (float)($row->gross_pay ?? 0);
+                                            $ded   = (float)($row->deductions ?? 0);
+                                            $net   = (float)($row->net_pay ?? max(0, $gross - $ded));
+                                        @endphp
+                                        <tr class="bg-white dark:bg-gray-900">
+                                            <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                                {{ optional($row->user)->first_name }} {{ optional($row->user)->last_name }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                                {{ $row->employment_status ?? '—' }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
+                                                {{ $currencySymbol.$fmt($row->base_pay ?? 0) }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
+                                                {{ $currencySymbol.$fmt($row->hourly_rate ?? 0) }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
+                                                {{ $fmt($row->hours_worked ?? 0) }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
+                                                {{ $currencySymbol.$fmt($gross) }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
+                                                {{ $currencySymbol.$fmt($ded) }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
+                                                {{ $currencySymbol.$fmt($net) }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                                {{ $row->status ?? '—' }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm">
+                                                <div class="flex justify-center gap-3">
+                                                    @if(Auth::user()?->is_admin)
+                                                        <a href="{{ route('payroll.edit', $row->id) }}" class="text-blue-600 dark:text-blue-400 hover:underline">Edit</a>
+                                                        <form action="{{ route('payroll.destroy', $row->id) }}" method="POST" onsubmit="return confirm('Delete this payroll?');">
+                                                            @csrf @method('DELETE')
+                                                            <button class="text-red-600 dark:text-red-400 hover:underline">Delete</button>
+                                                        </form>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr class="bg-white dark:bg-gray-900">
+                                            <td colspan="10" class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                                                No payroll records found.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Hourly Rate</label>
-                            <input type="number" step="0.01" name="hourly_rate" id="hourly_rate" value="{{ old('hourly_rate', $payroll->hourly_rate ?? '') }}" class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:text-gray-200">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Base Pay</label>
-                            <input type="number" step="0.01" name="base_pay" id="base_pay" value="{{ old('base_pay', $payroll->base_pay ?? '') }}" class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:text-gray-200">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Hours Worked</label>
-                            <input type="number" step="0.01" name="hours_worked" id="hours_worked" value="{{ old('hours_worked', $payroll->hours_worked ?? '') }}" class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:text-gray-200">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Gross Pay</label>
-                            <input type="number" step="0.01" name="gross_pay" id="gross_pay" value="{{ old('gross_pay', $payroll->gross_pay ?? '') }}" required class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:text-gray-200">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Deductions</label>
-                            <input type="number" step="0.01" name="deductions" id="deductions" value="{{ old('deductions', $payroll->deductions ?? 0) }}" class="w-full rounded-md border-gray-300 dark:bg-gray-700 dark:text-gray-200">
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end items-center gap-3">
-                        @if($editing)
-                            <a href="{{ route('payroll.index') }}" class="inline-block text-sm px-3 py-2 border rounded text-gray-700 dark:text-gray-200">Cancel</a>
+                        @if(method_exists($payrolls, 'links'))
+                            <div class="px-4 py-3">
+                                {{ $payrolls->links() }}
+                            </div>
                         @endif
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-md">
-                            {{ $editing ? 'Update Payroll' : 'Add Payroll' }}
-                        </button>
                     </div>
-                </form>
-            </div>
-            @endif
-
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">Payroll Records</h3>
-
-                <div class="overflow-x-auto">
-                    <table class="min-w-full w-full table-auto text-sm">
-                        <thead class="bg-gray-100 dark:bg-gray-700">
-                            <tr>
-                                <th class="px-4 py-2 text-left">Employee</th>
-                                <th class="px-4 py-2 text-center">Type</th>
-                                <th class="px-4 py-2 text-center">Base</th>
-                                <th class="px-4 py-2 text-center">Hourly</th>
-                                <th class="px-4 py-2 text-center">Hours</th>
-                                <th class="px-4 py-2 text-center">Gross</th>
-                                <th class="px-4 py-2 text-center">Deductions</th>
-                                <th class="px-4 py-2 text-center">Net</th>
-                                <th class="px-4 py-2 text-center">Status</th>
-                                <th class="px-4 py-2 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($payrolls as $row)
-                                @php
-                                    $cur = config('app.currency','PHP');
-                                    $sym = ['PHP'=>'₱','USD'=>'$','EUR'=>'€','GBP'=>'£','JPY'=>'¥'][strtoupper($cur)] ?? strtoupper($cur).' ';
-                                    $gross = (float)($row->gross_pay ?? 0);
-                                    $ded   = (float)($row->deductions ?? 0);
-                                    $net   = (float)($row->net_pay ?? max(0, $gross - $ded));
-                                    $fmt = fn($v)=>number_format((float)$v, 2);
-                                @endphp
-                                <tr class="border-b border-gray-200 dark:border-gray-700">
-                                    <td class="px-4 py-2">{{ optional($row->user)->first_name }} {{ optional($row->user)->last_name }}</td>
-                                    <td class="px-4 py-2 text-center">{{ $row->employment_status ?? '—' }}</td>
-                                    <td class="px-4 py-2 text-center">{{ $sym.$fmt($row->base_pay ?? 0) }}</td>
-                                    <td class="px-4 py-2 text-center">{{ $sym.$fmt($row->hourly_rate ?? 0) }}</td>
-                                    <td class="px-4 py-2 text-center">{{ $fmt($row->hours_worked ?? 0) }}</td>
-                                    <td class="px-4 py-2 text-center">{{ $sym.$fmt($gross) }}</td>
-                                    <td class="px-4 py-2 text-center">{{ $sym.$fmt($ded) }}</td>
-                                    <td class="px-4 py-2 text-center">{{ $sym.$fmt($net) }}</td>
-                                    <td class="px-4 py-2 text-center">{{ $row->status }}</td>
-                                    <td class="px-4 py-2 text-right">
-                                        @if(Auth::user()?->is_admin)
-                                            <a href="{{ route('payroll.edit', $row->id) }}" class="text-blue-600 mr-3">Edit</a>
-                                            <form action="{{ route('payroll.destroy', $row->id) }}" method="POST" class="inline" onsubmit="return confirm('Delete this payroll?');">
-                                                @csrf @method('DELETE')
-                                                <button class="text-red-600">Delete</button>
-                                            </form>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr><td colspan="10" class="text-center py-4 text-gray-500">No payroll records found.</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
                 </div>
-
-                <div class="mt-4">
-                    @if(method_exists($payrolls, 'links')) {{ $payrolls->links() }} @endif
-                </div>
-            </div>
+            </section>
         </div>
     </div>
 
     <script>
-        // Auto-fill Employment Status, Hourly Rate, and Base Pay (from status mapping)
+        // Auto-fill and auto-calc
         document.addEventListener('DOMContentLoaded', function () {
-            const userSelect = document.getElementById('user_id');
-            const statusEl = document.getElementById('employment_status');
-            const hourlyEl = document.getElementById('hourly_rate');
-            const baseEl = document.getElementById('base_pay');
+            const userSelect   = document.getElementById('user_id');
+            const statusEl     = document.getElementById('employment_status');
+            const hourlyEl     = document.getElementById('hourly_rate');
+            const baseEl       = document.getElementById('base_pay');
+            const hoursEl      = document.getElementById('hours_worked');
+            const grossEl      = document.getElementById('gross_pay');
+            const isEditing    = @json($editing);
+            const baseByStatus = @json($baseByStatus);
 
-            const isEditing = {{ isset($editing) && $editing ? 'true' : 'false' }};
-            const baseByStatus = @json($baseByStatus); // {"Full-time":20000,...}
+            function toNum(el) { const v = parseFloat(el?.value ?? ''); return isFinite(v) ? v : 0; }
 
             function applyBaseFromStatus(status) {
                 if (!baseEl) return;
-                if (status && baseByStatus && baseByStatus[status] !== undefined) {
+                if (status && baseByStatus && Object.prototype.hasOwnProperty.call(baseByStatus, status)) {
                     baseEl.value = baseByStatus[status];
                 }
             }
@@ -193,31 +249,37 @@
             function applyFromSelected() {
                 const opt = userSelect?.options[userSelect.selectedIndex];
                 if (!opt) return;
-
                 const status = opt.dataset.status || '';
                 const hourly = opt.dataset.hourly || '';
-
-                if (statusEl && status) statusEl.value = status;
-                if (hourlyEl && hourly !== '') hourlyEl.value = hourly;
-
+                if (status && statusEl) statusEl.value = status;
+                if (hourly !== '' && hourlyEl) hourlyEl.value = hourly;
                 applyBaseFromStatus(status);
+                calcGross();
             }
+
+            function calcGross() {
+                if (!grossEl) return;
+                const base   = toNum(baseEl);
+                const hourly = toNum(hourlyEl);
+                const hours  = toNum(hoursEl);
+                const gross  = base + (hourly * hours);
+                if (!grossEl.dataset.touched || !isEditing) {
+                    grossEl.value = gross.toFixed(2);
+                }
+            }
+
+            grossEl?.addEventListener('input', () => { grossEl.dataset.touched = '1'; });
 
             userSelect?.addEventListener('change', applyFromSelected);
+            statusEl?.addEventListener('change', () => { applyBaseFromStatus(statusEl.value || ''); calcGross(); });
+            hourlyEl?.addEventListener('input', calcGross);
+            baseEl?.addEventListener('input', calcGross);
+            hoursEl?.addEventListener('input', calcGross);
 
-            // If admin changes status manually, update base pay from mapping
-            statusEl?.addEventListener('change', function () {
-                applyBaseFromStatus(statusEl.value || '');
-            });
+            const fieldsEmpty = (!statusEl?.value) && (!hourlyEl?.value) && (!baseEl?.value);
 
-            // Initial fill when creating or fields are empty
-            const fieldsEmpty =
-                (!statusEl?.value || statusEl.value === '') &&
-                (!hourlyEl?.value || hourlyEl.value === '') &&
-                (!baseEl?.value || baseEl.value === '');
-            if ((!isEditing || fieldsEmpty) && userSelect?.value) {
-                applyFromSelected();
-            }
+            if ((!isEditing || fieldsEmpty) && userSelect?.value) applyFromSelected();
+            else calcGross();
         });
     </script>
 </x-app-layout>
