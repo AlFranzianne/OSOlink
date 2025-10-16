@@ -24,6 +24,7 @@ class User extends Authenticatable
         'job_type',
         'employment_status',
         'hourly_rate',
+        'base_pay',
         'gender',
         'phone',
         'birthday',

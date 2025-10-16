@@ -5,73 +5,102 @@ namespace App\Http\Controllers;
 use App\Models\Payroll;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class PayrollController extends Controller
 {
     public function index()
     {
-        $payrolls = Payroll::with('user')->paginate(10);
-        $employees = User::all();
-        return view('payroll.index', compact('payrolls', 'employees'));
+        // Include employment_status and hourly_rate from users table
+        $employees = User::select('id','first_name','last_name','employment_status','hourly_rate')
+            ->orderBy('first_name')
+            ->get();
+
+        $payrolls = Payroll::with('user')->latest()->paginate(10);
+
+        // Status → base mapping
+        $baseByStatus = config('payroll.default_base_by_status');
+
+        return view('payroll.index', compact('employees','payrolls','baseByStatus'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'gross_pay' => 'required|numeric',
-            'deductions' => 'nullable|numeric',
+        $data = $request->validate([
+            'user_id'           => ['required','exists:users,id'],
+            'employment_status' => ['nullable','string'],
+            'base_pay'          => ['nullable','numeric','min:0'],
+            'hourly_rate'       => ['nullable','numeric','min:0'],
+            'hours_worked'      => ['nullable','numeric','min:0'],
+            'gross_pay'         => ['required','numeric','min:0'],
+            'deductions'        => ['nullable','numeric','min:0'],
         ]);
 
-        $netPay = $request->gross_pay - ($request->deductions ?? 0);
+        $gross = (float)$data['gross_pay'];
+        $ded   = (float)($data['deductions'] ?? 0);
+        $net   = max(0, $gross - $ded);
 
         Payroll::create([
-            'user_id' => $request->user_id,
-            'gross_pay' => $request->gross_pay,
-            'deductions' => $request->deductions ?? 0,
-            'net_pay' => $netPay,
-            'status' => 'Processed',
+            'user_id'           => (int)$data['user_id'],
+            'employment_status' => $data['employment_status'] ?? null,
+            'base_pay'          => (float)($data['base_pay'] ?? 0),
+            'hourly_rate'       => (float)($data['hourly_rate'] ?? 0),
+            'hours_worked'      => (float)($data['hours_worked'] ?? 0),
+            'gross_pay'         => $gross,
+            'deductions'        => $ded,
+            'net_pay'           => $net,
+            'status'            => 'Processed',
         ]);
 
-        return redirect()->route('payroll.index')->with('success', 'Payroll added successfully.');
+        return redirect()->route('payroll.index')->with('success','Payroll added.');
     }
 
-    public function edit($id)
+    public function edit(Payroll $payroll)
     {
-        $payroll = Payroll::findOrFail($id);
-        $employees = User::all();
-        $payrolls = Payroll::with('user')->paginate(10);
+        $employees = User::select('id','first_name','last_name','employment_status','hourly_rate')
+            ->orderBy('first_name')
+            ->get();
 
-        return view('payroll.index', compact('payroll', 'payrolls', 'employees'));
+        $payrolls = Payroll::with('user')->latest()->paginate(10);
+
+        // Status → base mapping
+        $baseByStatus = config('payroll.default_base_by_status');
+
+        return view('payroll.index', compact('employees','payrolls','payroll','baseByStatus'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Payroll $payroll)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'gross_pay' => 'required|numeric',
-            'deductions' => 'nullable|numeric',
+        $data = $request->validate([
+            'user_id'           => ['required','exists:users,id'],
+            'employment_status' => ['nullable','string'],
+            'base_pay'          => ['nullable','numeric','min:0'],
+            'hourly_rate'       => ['nullable','numeric','min:0'],
+            'hours_worked'      => ['nullable','numeric','min:0'],
+            'gross_pay'         => ['required','numeric','min:0'],
+            'deductions'        => ['nullable','numeric','min:0'],
         ]);
 
-        $payroll = Payroll::findOrFail($id);
-        $netPay = $request->gross_pay - ($request->deductions ?? 0);
+        $gross = (float)$data['gross_pay'];
+        $ded   = (float)($data['deductions'] ?? $payroll->deductions ?? 0);
+        $net   = max(0, $gross - $ded);
 
         $payroll->update([
-            'user_id' => $request->user_id,
-            'gross_pay' => $request->gross_pay,
-            'deductions' => $request->deductions ?? 0,
-            'net_pay' => $netPay,
+            'user_id'           => (int)$data['user_id'],
+            'employment_status' => $data['employment_status'] ?? $payroll->employment_status,
+            'base_pay'          => (float)($data['base_pay'] ?? $payroll->base_pay ?? 0),
+            'hourly_rate'       => (float)($data['hourly_rate'] ?? $payroll->hourly_rate ?? 0),
+            'hours_worked'      => (float)($data['hours_worked'] ?? $payroll->hours_worked ?? 0),
+            'gross_pay'         => $gross,
+            'deductions'        => $ded,
+            'net_pay'           => $net,
         ]);
 
-        return redirect()->route('payroll.index')->with('success', 'Payroll updated successfully.');
+        return redirect()->route('payroll.index')->with('success','Payroll updated.');
     }
 
-    public function destroy($id)
+    public function destroy(Payroll $payroll)
     {
-        $payroll = Payroll::findOrFail($id);
         $payroll->delete();
-
-        return redirect()->route('payroll.index')->with('success', 'Payroll deleted successfully.');
+        return redirect()->route('payroll.index')->with('success','Payroll deleted.');
     }
 }
