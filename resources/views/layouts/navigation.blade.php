@@ -55,12 +55,17 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button
-                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
-                            <div class="w-10 mr-2">
+                            class="inline-flex items-center px-3 py-2 h-12 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
+                            <div class="w-10 h-10 mr-2 flex items-center justify-center flex-shrink-0 flex-grow-0">
                                 @if(auth()->user()->profile_picture)
-                                    <img src="{{ asset('storage/' . auth()->user()->profile_picture) }}" alt="Profile Picture" class="rounded-full">
+                                    <img src="{{ asset('storage/' . auth()->user()->profile_picture) }}"
+                                         alt="Profile Picture"
+                                         style="width: 40px !important; height: 40px !important; object-fit: cover; border-radius: 9999px;">
                                 @else
-                                    <img src="{{ asset('images/default-avatar.jpg') }}" alt="Default Avatar" class="rounded-full">
+                                    <img src="{{ asset('images/default-avatar.jpg') }}"
+                                         alt="Default Avatar"
+                                         style="width: 40px !important; height: 40px !important; object-fit: cover; border-radius: 9999px;"
+>
                                 @endif
                             </div>
 
@@ -148,9 +153,14 @@
             <div class="px-4">
                 <div class="w-10 mb-2">
                     @if(auth()->user()->profile_picture)
-                        <img src="{{ asset('storage/' . auth()->user()->profile_picture) }}" alt="Profile Picture" class="rounded-full">
+                        <img src="{{ asset('storage/' . auth()->user()->profile_picture) }}"
+                             alt="Profile Picture"
+                             style="width: 40px !important; height: 40px !important; object-fit: cover; border-radius: 9999px;">
                     @else
-                        <img src="{{ asset('images/default-avatar.jpg') }}" alt="Default Avatar" class="rounded-full">
+                        <img src="{{ asset('images/default-avatar.jpg') }}"
+                             alt="Default Avatar"
+                             style="width: 40px !important; height: 40px !important; object-fit: cover; border-radius: 9999px;"
+>
                     @endif
                 </div>
                 <div class="font-medium text-base text-gray-800 dark:text-gray-200">
