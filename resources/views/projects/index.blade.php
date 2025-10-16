@@ -92,7 +92,7 @@
                                     <td class="px-4 py-2 text-center">
                                         <span class="
                                             @if($project->status == 'Completed') text-green-600 dark:text-green-400
-                                            @elseif($project->status == 'In Progress') text-yellow-600 dark:text-yellow-400
+                                            @elseif($project->status == 'In Progress') text-gray-600 dark:text-gray-400
                                             @else text-gray-600 dark:text-gray-400
                                             @endif
                                         ">
