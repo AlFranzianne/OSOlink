@@ -34,6 +34,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/dependents', [DependentController::class, 'index'])->name('dependents.index');
     Route::put('/dependents/{dependent}', [DependentController::class, 'update'])->name('dependents.update');
 
+    // Projects (admin-only, static routes FIRST)
+    Route::middleware('admin')->group(function () {
+        // Static routes must come before dynamic ones!
+        Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
+        Route::get('/projects/{project}/edit', [ProjectController::class, 'edit'])->name('projects.edit');
+    });
+
     // Projects (public to authenticated)
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
     Route::post('/projects/{project}/comments', [ProjectController::class, 'addComment'])->name('projects.comments.store');
@@ -45,9 +52,7 @@ Route::middleware('auth')->group(function () {
 
     // Projects (admin-only)
     Route::middleware('admin')->group(function () {
-        Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
         Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
-        Route::get('/projects/{project}/edit', [ProjectController::class, 'edit'])->name('projects.edit');
         Route::put('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
         Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
         Route::post('/projects/{project}/assign-user', [ProjectController::class, 'assignUser'])->name('projects.assignUser');
