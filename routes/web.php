@@ -5,11 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\DependentController;
 use App\Http\Controllers\PayrollController;
-<<<<<<< HEAD
-use App\Http\Controllers\PayslipController;
-=======
 use App\Http\Controllers\LeaveController;
->>>>>>> 1023a6ac40847a7ee3768df1396288ab4a8987da
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -59,19 +55,6 @@ Route::middleware('auth')->group(function () {
     Route::put('/projects/{project}/timelogs/{timeLog}', [ProjectController::class, 'updateTimeLog'])->name('projects.updateTimeLog');
     Route::delete('/projects/{project}/timelogs/{timeLog}', [ProjectController::class, 'deleteTimeLog'])->name('projects.deleteTimeLog');
 
-<<<<<<< HEAD
-    // Payroll routes (admin area) - index route name changed to payroll.payroll
-    Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.payroll')->middleware('admin');
-    Route::post('/payroll', [PayrollController::class, 'store'])->name('payroll.store')->middleware('admin');
-    Route::get('/payroll/{payroll}/edit', [PayrollController::class, 'edit'])->name('payroll.edit')->middleware('admin');
-    Route::put('/payroll/{payroll}', [PayrollController::class, 'update'])->name('payroll.update')->middleware('admin');
-    Route::delete('/payroll/{payroll}', [PayrollController::class, 'destroy'])->name('payroll.destroy')->middleware('admin');
-
-    // Payslip routes (employees access their own; admin can view all via payroll)
-    Route::get('/payslips', [PayslipController::class, 'index'])->name('payslip.index');
-    Route::post('/payslips', [PayslipController::class, 'store'])->name('payslip.store')->middleware('admin');
-    Route::get('/payslips/{payslip}', [PayslipController::class, 'show'])->name('payslip.show');
-=======
     // Payroll
 
     Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll');
@@ -92,7 +75,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/leaves/{leave}/reject', [LeaveController::class, 'reject'])->name('leaves.reject');
     Route::post('/leaves/{leave}/pending', [LeaveController::class, 'pending'])->name('leaves.pending');
     Route::get('/leaves/{id}', [LeaveController::class, 'show'])->name('leaves.show');
->>>>>>> 1023a6ac40847a7ee3768df1396288ab4a8987da
 });
 
 // Admin panel routes
