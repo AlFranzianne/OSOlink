@@ -5,7 +5,11 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\DependentController;
 use App\Http\Controllers\PayrollController;
+<<<<<<< HEAD
 use App\Http\Controllers\PayslipController;
+=======
+use App\Http\Controllers\LeaveController;
+>>>>>>> 1023a6ac40847a7ee3768df1396288ab4a8987da
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,15 +21,16 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Profile routes
+
 Route::middleware('auth')->group(function () {
+    // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/upload', [ProfileController::class, 'upload'])->name('profile.upload');
     Route::delete('/profile/remove', [ProfileController::class, 'remove'])->name('profile.remove');
 
-    // Dependents
+    // Profile Dependents
     Route::get('/dependents/create', [DependentController::class, 'create'])->name('create-dependent');
     Route::get('/dependents/{dependent}/edit', [DependentController::class, 'edit'])->name('dependents.edit');
     Route::delete('/dependents/{dependent}', [DependentController::class, 'destroy'])->name('dependents.destroy');
@@ -54,6 +59,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/projects/{project}/timelogs/{timeLog}', [ProjectController::class, 'updateTimeLog'])->name('projects.updateTimeLog');
     Route::delete('/projects/{project}/timelogs/{timeLog}', [ProjectController::class, 'deleteTimeLog'])->name('projects.deleteTimeLog');
 
+<<<<<<< HEAD
     // Payroll routes (admin area) - index route name changed to payroll.payroll
     Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.payroll')->middleware('admin');
     Route::post('/payroll', [PayrollController::class, 'store'])->name('payroll.store')->middleware('admin');
@@ -65,6 +71,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/payslips', [PayslipController::class, 'index'])->name('payslip.index');
     Route::post('/payslips', [PayslipController::class, 'store'])->name('payslip.store')->middleware('admin');
     Route::get('/payslips/{payslip}', [PayslipController::class, 'show'])->name('payslip.show');
+=======
+    // Payroll
+
+    Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll');
+    Route::post('/payroll', [PayrollController::class, 'store'])->name('payroll.store');
+    Route::get('/payroll/{payroll}/edit', [PayrollController::class, 'edit'])->name('payroll.edit');
+    Route::put('/payroll/{payroll}', [PayrollController::class, 'update'])->name('payroll.update');
+    Route::delete('/payroll/{payroll}', [PayrollController::class, 'destroy'])->name('payroll.destroy');
+
+    // Leaves
+    Route::get('/leaves', [LeaveController::class, 'index'])->name('leaves.index');
+    Route::post('/leaves', [LeaveController::class, 'store'])->name('leaves.store');
+    Route::get('/leaves/{leave}/edit', [LeaveController::class, 'edit'])->name('leaves.edit');
+    Route::put('/leaves/{leave}', [LeaveController::class, 'update'])->name('leaves.update');
+    Route::delete('/leaves/{leave}', [LeaveController::class, 'destroy'])->name('leaves.destroy');
+    Route::get('/leaves/create', [LeaveController::class, 'create'])->name('leaves.create');
+    Route::resource('leaves', \App\Http\Controllers\LeaveController::class);
+    Route::post('/leaves/{leave}/approve', [LeaveController::class, 'approve'])->name('leaves.approve');
+    Route::post('/leaves/{leave}/reject', [LeaveController::class, 'reject'])->name('leaves.reject');
+    Route::post('/leaves/{leave}/pending', [LeaveController::class, 'pending'])->name('leaves.pending');
+    Route::get('/leaves/{id}', [LeaveController::class, 'show'])->name('leaves.show');
+>>>>>>> 1023a6ac40847a7ee3768df1396288ab4a8987da
 });
 
 // Admin panel routes

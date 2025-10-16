@@ -90,4 +90,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Dependent::class);
     }
+
+    public function leaves()
+    {
+        return $this->hasMany(\App\Models\Leave::class);
+    }
 }
