@@ -1,13 +1,13 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\DependentController;
 use App\Http\Controllers\PayrollController;
- use App\Http\Controllers\PayslipController; // re-enable when needed
+use App\Http\Controllers\PayslipController;
 use App\Http\Controllers\LeaveController;
-use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -23,7 +23,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::post('/profile/upload', [ProfileController::class, 'upload'])->name('profile.upload');
+    Route::post('/profile/upload', [ProfileController::class, 'upload'])->name('profile.upload'); // fixed
     Route::delete('/profile/remove', [ProfileController::class, 'remove'])->name('profile.remove');
 
     // Dependents
@@ -61,7 +61,9 @@ Route::middleware('auth')->group(function () {
     });
 
     // Payroll
-    Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index'); // everyone (auth) can view
+    Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
+    Route::get('/payroll/hours', [PayrollController::class, 'hours'])->name('payroll.hours'); // added
+
     Route::middleware('admin')->group(function () {
         Route::post('/payroll', [PayrollController::class, 'store'])->name('payroll.store');
         Route::get('/payroll/{payroll}/edit', [PayrollController::class, 'edit'])->name('payroll.edit');
@@ -69,12 +71,12 @@ Route::middleware('auth')->group(function () {
         Route::delete('/payroll/{payroll}', [PayrollController::class, 'destroy'])->name('payroll.destroy');
     });
 
-    // Payslip (disabled for now)
+    // Payslip
     Route::get('/payslip', [PayslipController::class, 'index'])->name('payslip.index');
     Route::get('/payslip/{payslip}', [PayslipController::class, 'show'])->name('payslip.show');
     Route::post('/payslip', [PayslipController::class, 'store'])->name('payslip.store');
 
-    // Leaves — use resource to avoid duplicates, then add custom actions
+    // Leaves — shared by admin and employees
     Route::resource('leaves', LeaveController::class);
     Route::post('/leaves/{leave}/approve', [LeaveController::class, 'approve'])->name('leaves.approve');
     Route::post('/leaves/{leave}/reject', [LeaveController::class, 'reject'])->name('leaves.reject');

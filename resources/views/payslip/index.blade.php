@@ -1,94 +1,97 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Payslip') }}
-        </h2>
-    </x-slot>
+    @php
+        $payslips       = $payslips ?? collect();
+        $fmt            = fn($v)=>number_format((float)$v, 2);
+        $currencySymbol = 'C$';
+        $success        = session('success');
+    @endphp
 
-    <div class="max-w-4xl mx-auto px-6 py-8">
-        <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6">
-            <div class="flex items-start justify-between mb-6">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Company Name</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Address · Contact</p>
+    <div class="py-12 bg-gray-50 dark:bg-gray-900 min-h-screen">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+            <!-- Payslips -->
+            <section>
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6">
+                        <header class="mb-4">
+                            <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">Payslips</h3>
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                View your issued payslips. Admins can see all employees’ payslips.
+                            </p>
+                            @if($success)
+                                <p class="mt-3 text-sm text-green-600 dark:text-green-400">{{ $success }}</p>
+                            @endif
+                        </header>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead class="bg-gray-50 dark:bg-gray-700/50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Employee</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Period</th>
+                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Gross</th>
+                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Deductions</th>
+                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Net</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Status</th>
+                                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Issued</th>
+                                        <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                                    @forelse ($payslips as $p)
+                                        @php
+                                            $user = $p->user;
+                                            $name = trim(($user->first_name ?? '').' '.($user->last_name ?? '')) ?: ($user->name ?? '—');
+                                            $gross = (float)($p->total_earnings ?? 0);
+                                            $ded   = (float)($p->total_deductions ?? 0);
+                                            $net   = (float)($p->net_pay ?? max(0, $gross - $ded));
+                                        @endphp
+                                        <tr class="bg-white dark:bg-gray-900">
+                                            <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                                {{ $name }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                                {{ optional($p->period_from)->format('M d, Y') ?? '—' }} — {{ optional($p->period_to)->format('M d, Y') ?? '—' }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
+                                                {{ $currencySymbol.$fmt($gross) }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
+                                                {{ $currencySymbol.$fmt($ded) }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
+                                                {{ $currencySymbol.$fmt($net) }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                                {{ $p->status ?? '—' }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                                                {{ optional($p->issued_at)->format('M d, Y') ?? '—' }}
+                                            </td>
+                                            <td class="px-4 py-3 text-sm">
+                                                <div class="flex justify-center gap-3">
+                                                    <a href="{{ route('payslip.show', $p) }}" class="text-indigo-600 dark:text-indigo-400 hover:underline">View</a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr class="bg-white dark:bg-gray-900">
+                                            <td colspan="8" class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                                                No payslips found.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        @if(method_exists($payslips, 'links'))
+                            <div class="px-4 py-3">
+                                {{ $payslips->links() }}
+                            </div>
+                        @endif
+                    </div>
                 </div>
-
-                <div class="text-right">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Payslip #{{ $payslip->id }}</p>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Issued: {{ optional($payslip->issued_at)->format('M d, Y') ?? '—' }}</p>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Status: {{ $payslip->status }}</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Employee</h4>
-                    <p class="text-md font-medium text-gray-900 dark:text-gray-100">{{ $payslip->user->name ?? ($payslip->user->first_name . ' ' . $payslip->user->last_name ?? 'N/A') }}</p>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ $payslip->user->email ?? '' }}</p>
-                </div>
-
-                <div>
-                    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Payroll Summary</h4>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Payroll ID: {{ $payslip->payroll_id ?? '—' }}</p>
-                </div>
-            </div>
-
-            @php
-                $payroll = $payslip->payroll ?? null;
-                $gross = $payslip->total_earnings ?? ($payroll->gross_pay ?? 0);
-                $taxDed = $payroll->tax_deduction ?? ($payslip->tax_deduction ?? 0);
-                $otherDed = $payroll->other_deductions ?? ($payslip->total_deductions - $taxDed ?? 0);
-                $totalDed = $payslip->total_deductions ?? ($taxDed + $otherDed);
-                $net = $payslip->net_pay ?? ($gross - $totalDed);
-            @endphp
-
-            <div class="overflow-x-auto mb-6">
-                <table class="w-full text-sm text-left text-gray-700 dark:text-gray-300">
-                    <thead class="bg-gray-100 dark:bg-gray-700">
-                        <tr>
-                            <th class="px-4 py-2">Description</th>
-                            <th class="px-4 py-2 text-right">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="border-t">
-                            <td class="px-4 py-3">Gross Pay</td>
-                            <td class="px-4 py-3 text-right">₱{{ number_format($gross, 2) }}</td>
-                        </tr>
-
-                        <tr>
-                            <td class="px-4 py-3 font-medium">Deductions</td>
-                            <td class="px-4 py-3 text-right">₱{{ number_format($totalDed, 2) }}</td>
-                        </tr>
-
-                        <tr class="bg-gray-50 dark:bg-gray-800">
-                            <td class="px-4 py-3"> - Tax</td>
-                            <td class="px-4 py-3 text-right">₱{{ number_format($taxDed, 2) }}</td>
-                        </tr>
-
-                        <tr>
-                            <td class="px-4 py-3"> - Other Deductions</td>
-                            <td class="px-4 py-3 text-right">₱{{ number_format($otherDed, 2) }}</td>
-                        </tr>
-
-                        <tr class="border-t font-semibold">
-                            <td class="px-4 py-3">Net Pay</td>
-                            <td class="px-4 py-3 text-right text-green-600">₱{{ number_format($net, 2) }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="flex items-center justify-between">
-                <div class="text-sm text-gray-600 dark:text-gray-400">
-                    <p>Prepared by: {{ auth()->user()->name ?? 'Admin' }}</p>
-                </div>
-
-                <div class="space-x-3">
-                    <a href="{{ route('payslip.index') }}" class="inline-block px-4 py-2 border rounded text-sm">Back</a>
-                    <button onclick="window.print()" class="inline-block bg-indigo-600 text-white px-4 py-2 rounded text-sm">Print</button>
-                </div>
-            </div>
+            </section>
         </div>
     </div>
 </x-app-layout>

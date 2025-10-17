@@ -12,28 +12,30 @@ class Payslip extends Model
     protected $fillable = [
         'payroll_id',
         'user_id',
-        'issued_at',
+        'period_from',
+        'period_to',
         'total_earnings',
+        'tax_deduction',
+        'other_deductions',
         'total_deductions',
         'net_pay',
         'status',
-        // add other columns if you have them
+        'issued_at',
     ];
 
     protected $casts = [
-        'issued_at' => 'datetime',
-        'total_earnings' => 'float',
-        'total_deductions' => 'float',
-        'net_pay' => 'float',
+        'period_from' => 'date',
+        'period_to'   => 'date',
+        'issued_at'   => 'datetime',
     ];
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class);
+        return $this->belongsTo(User::class);
     }
 
     public function payroll()
     {
-        return $this->belongsTo(\App\Models\Payroll::class);
+        return $this->belongsTo(Payroll::class);
     }
 }

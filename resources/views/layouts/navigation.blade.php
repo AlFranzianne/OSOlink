@@ -27,6 +27,11 @@
                         {{ __('Leaves') }}
                     </x-nav-link>
 
+                    <!-- Payslip (visible to all authenticated users) -->
+                    <x-nav-link :href="route('payslip.index')" :active="request()->routeIs('payslip.*')">
+                        {{ __('Payslip') }}
+                    </x-nav-link>
+
                     <!-- Admin-only links -->
                     @if (Auth::check() && Auth::user()->is_admin)
                         <!-- Admin Panel -->
@@ -34,17 +39,9 @@
                             {{ __('Admin Panel') }}
                         </x-nav-link>
 
-                        <!-- Payroll (next to Admin Panel) -->
+                        <!-- Payroll -->
                         <x-nav-link :href="route('payroll.index')" :active="request()->routeIs('payroll.*')">
                             {{ __('Payroll') }}
-                        </x-nav-link>
-                    @endif
-
-                    <!-- Non-admin links -->
-                    @if (Auth::check() && !Auth::user()->is_admin)
-                        <!-- Payslip -->
-                        <x-nav-link :href="route('payslip.index')" :active="request()->routeIs('payslip.*')">
-                            {{ __('Payslip') }}
                         </x-nav-link>
                     @endif
                 </div>
@@ -64,8 +61,7 @@
                                 @else
                                     <img src="{{ asset('images/default-avatar.jpg') }}"
                                          alt="Default Avatar"
-                                         style="width: 40px !important; height: 40px !important; object-fit: cover; border-radius: 9999px;"
->
+                                         style="width: 40px !important; height: 40px !important; object-fit: cover; border-radius: 9999px;">
                                 @endif
                             </div>
 
@@ -84,7 +80,7 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <!-- Profile -->    
+                        <!-- Profile -->
                         <x-dropdown-link :href="route('profile.edit')">
                             {{ __('Profile') }}
                         </x-dropdown-link>
@@ -133,6 +129,12 @@
                 {{ __('Leaves') }}
             </x-responsive-nav-link>
 
+            <!-- Payslip (visible to all authenticated users) -->
+            <x-responsive-nav-link :href="route('payslip.index')" :active="request()->routeIs('payslip.*')">
+                {{ __('Payslip') }}
+            </x-responsive-nav-link>
+
+            <!-- Admin-only -->
             @if (Auth::check() && Auth::user()->is_admin)
                 <x-responsive-nav-link :href="route('adminpanel.admin')" :active="request()->routeIs('adminpanel.admin')">
                     {{ __('Admin Panel') }}
@@ -140,12 +142,6 @@
 
                 <x-responsive-nav-link :href="route('payroll.index')" :active="request()->routeIs('payroll.*')">
                     {{ __('Payroll') }}
-                </x-responsive-nav-link>
-            @endif
-
-            @if (Auth::check() && !Auth::user()->is_admin)
-                <x-responsive-nav-link :href="route('payslip.index')" :active="request()->routeIs('payslip.*')">
-                    {{ __('Payslip') }}
                 </x-responsive-nav-link>
             @endif
         </div>
@@ -161,8 +157,7 @@
                     @else
                         <img src="{{ asset('images/default-avatar.jpg') }}"
                              alt="Default Avatar"
-                             style="width: 40px !important; height: 40px !important; object-fit: cover; border-radius: 9999px;"
->
+                             style="width: 40px !important; height: 40px !important; object-fit: cover; border-radius: 9999px;">
                     @endif
                 </div>
                 <div class="font-medium text-base text-gray-800 dark:text-gray-200">
