@@ -29,7 +29,8 @@ class PayslipController extends Controller
         $user = Auth::user();
         abort_unless($user && ($user->is_admin || (int)$payslip->user_id === (int)$user->id), 403);
 
-        return view('payslip.show', compact('payslip'));
+        // Render the detailed breakdown view
+        return view('payslip.view', compact('payslip'));
     }
 
     // Admin: create or refresh a payslip from a Payroll record

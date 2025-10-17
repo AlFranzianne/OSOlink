@@ -20,23 +20,18 @@
     @endphp
 
     <div class="py-12 bg-gray-50 dark:bg-gray-900 min-h-screen">
-        <!-- Match navbar container width/padding for perfect alignment -->
+        <!-- Keep aligned with navbar container -->
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
             <section>
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900 dark:text-gray-100">
-                        <header class="mb-4 flex items-center justify-between">
-                            <div>
-                                <h3 class="text-lg sm:text-xl font-semibold">
-                                    {{ $editing ? 'Edit Payroll' : 'Add Payroll' }}
-                                </h3>
-                                @if($success)
-                                    <p class="mt-3 text-sm text-green-600 dark:text-green-400">{{ $success }}</p>
-                                @endif
-                            </div>
-                            <a href="{{ route('payroll.index') }}" class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">
-                                View Payroll Records
-                            </a>
+                        <header class="mb-4">
+                            <h3 class="text-lg sm:text-xl font-semibold">
+                                {{ $editing ? 'Edit Payroll' : 'Add Payroll' }}
+                            </h3>
+                            @if($success)
+                                <p class="mt-3 text-sm text-green-600 dark:text-green-400">{{ $success }}</p>
+                            @endif
                         </header>
 
                         <form action="{{ $formAction }}" method="POST" class="space-y-6">
@@ -143,7 +138,7 @@
 
                             <div class="flex items-center gap-4">
                                 @if($editing)
-                                    <a href="{{ route('payroll.index') }}" class="text-sm text-gray-600 dark:text-gray-300 hover:underline">Cancel</a>
+                                    <a href="{{ url()->previous() }}" class="text-sm text-gray-600 dark:text-gray-300 hover:underline">Cancel</a>
                                 @endif
 
                                 <x-primary-button>

@@ -78,10 +78,16 @@
                                             <td class="px-4 py-3 text-base">
                                                 <div class="flex justify-center gap-3">
                                                     @if(auth()->user()?->is_admin)
-                                                        <a href="{{ route('payroll.edit', $row->id) }}" class="text-blue-600 dark:text-blue-400 hover:underline">Edit</a>
+                                                        <a href="{{ route('payroll.edit', $row->id) }}"
+                                                           class="font-medium text-red-600 hover:text-red-700 visited:text-red-600 dark:text-red-400 dark:hover:text-red-300 hover:underline">
+                                                            Edit
+                                                        </a>
                                                         <form action="{{ route('payroll.destroy', $row->id) }}" method="POST" onsubmit="return confirm('Delete this payroll?');">
                                                             @csrf @method('DELETE')
-                                                            <button class="text-red-600 dark:text-red-400 hover:underline">Delete</button>
+                                                            <button
+                                                                class="font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:underline">
+                                                                Delete
+                                                            </button>
                                                         </form>
                                                     @else
                                                         <span class="text-gray-400">—</span>
