@@ -20,11 +20,12 @@
     @endphp
 
     <div class="py-12 bg-gray-50 dark:bg-gray-900 min-h-screen">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+        <!-- Match navbar container width/padding for perfect alignment -->
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
             <section>
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900 dark:text-gray-100">
-                        <header class="mb-6 flex items-center justify-between">
+                        <header class="mb-4 flex items-center justify-between">
                             <div>
                                 <h3 class="text-lg sm:text-xl font-semibold">
                                     {{ $editing ? 'Edit Payroll' : 'Add Payroll' }}
