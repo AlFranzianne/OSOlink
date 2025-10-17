@@ -27,19 +27,18 @@
                         {{ __('Leaves') }}
                     </x-nav-link>
 
-                    <!-- Payslip (visible to all authenticated users) -->
+                    <!-- Payslip -->
                     <x-nav-link :href="route('payslip.index')" :active="request()->routeIs('payslip.*')">
                         {{ __('Payslip') }}
                     </x-nav-link>
 
-                    <!-- Admin-only links -->
                     @if (Auth::check() && Auth::user()->is_admin)
                         <!-- Admin Panel -->
                         <x-nav-link :href="route('adminpanel.admin')" :active="request()->routeIs('adminpanel.admin')">
                             {{ __('Admin Panel') }}
                         </x-nav-link>
 
-                        <!-- Payroll -->
+                        <!-- Payroll (now opens records first) -->
                         <x-nav-link :href="route('payroll.index')" :active="request()->routeIs('payroll.*')">
                             {{ __('Payroll') }}
                         </x-nav-link>
@@ -129,17 +128,17 @@
                 {{ __('Leaves') }}
             </x-responsive-nav-link>
 
-            <!-- Payslip (visible to all authenticated users) -->
+            <!-- Payslip -->
             <x-responsive-nav-link :href="route('payslip.index')" :active="request()->routeIs('payslip.*')">
                 {{ __('Payslip') }}
             </x-responsive-nav-link>
 
-            <!-- Admin-only -->
             @if (Auth::check() && Auth::user()->is_admin)
                 <x-responsive-nav-link :href="route('adminpanel.admin')" :active="request()->routeIs('adminpanel.admin')">
                     {{ __('Admin Panel') }}
                 </x-responsive-nav-link>
 
+                <!-- Payroll (records first) -->
                 <x-responsive-nav-link :href="route('payroll.index')" :active="request()->routeIs('payroll.*')">
                     {{ __('Payroll') }}
                 </x-responsive-nav-link>

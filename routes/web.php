@@ -23,7 +23,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::post('/profile/upload', [ProfileController::class, 'upload'])->name('profile.upload'); // fixed
+    Route::post('/profile/upload', [ProfileController::class, 'upload'])->name('profile.upload');
     Route::delete('/profile/remove', [ProfileController::class, 'remove'])->name('profile.remove');
 
     // Dependents
@@ -36,7 +36,6 @@ Route::middleware('auth')->group(function () {
 
     // Projects (admin-only, static routes FIRST)
     Route::middleware('admin')->group(function () {
-        // Static routes must come before dynamic ones!
         Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
         Route::get('/projects/{project}/edit', [ProjectController::class, 'edit'])->name('projects.edit');
     });
@@ -60,9 +59,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/projects/{project}/set-permission', [ProjectController::class, 'setPermission'])->name('projects.setPermission');
     });
 
-    // Payroll
-    Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
-    Route::get('/payroll/hours', [PayrollController::class, 'hours'])->name('payroll.hours'); // added
+    // Payroll (Records first)
+    Route::get('/payroll', [PayrollController::class, 'records'])->name('payroll.index'); // default: records
+    Route::get('/payroll/create', [PayrollController::class, 'index'])->name('payroll.create'); // add form
+    // Back-compat: old /payroll/records -> redirect to index
+    Route::get('/payroll/records', function () {
+        return redirect()->route('payroll.index');
+    })->name('payroll.records');
+    // Hours endpoint
+    Route::get('/payroll/hours', [PayrollController::class, 'hours'])->name('payroll.hours');
 
     Route::middleware('admin')->group(function () {
         Route::post('/payroll', [PayrollController::class, 'store'])->name('payroll.store');

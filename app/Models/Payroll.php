@@ -9,6 +9,8 @@ class Payroll extends Model
 {
     use HasFactory;
 
+    protected $table = 'payrolls';
+
     protected $fillable = [
         'user_id',
         'employment_status',
@@ -19,19 +21,24 @@ class Payroll extends Model
         'deductions',
         'net_pay',
         'status',
+        'period_from',
+        'period_to',
+        'tax_deduction',
     ];
 
     protected $casts = [
-        'base_pay'     => 'float',
-        'hourly_rate'  => 'float',
-        'hours_worked' => 'float',
-        'gross_pay'    => 'float',
-        'deductions'   => 'float',
-        'net_pay'      => 'float',
+        'period_from' => 'date',
+        'period_to'   => 'date',
     ];
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class);
+        return $this->belongsTo(User::class);
+    }
+
+    // If you use payslips as fallback for period dates
+    public function payslip()
+    {
+        return $this->hasOne(\App\Models\Payslip::class, 'payroll_id');
     }
 }

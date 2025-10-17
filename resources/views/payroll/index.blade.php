@@ -1,32 +1,41 @@
 <x-app-layout>
     @php
         $employees      = $employees      ?? collect();
-        $payrolls       = $payrolls       ?? collect();
         $baseByStatus   = $baseByStatus   ?? [];
         $payroll        = $payroll        ?? null;
         $editing        = isset($payroll);
         $formAction     = $editing ? route('payroll.update', $payroll->id) : route('payroll.store');
         $selectedUser   = old('user_id', $payroll->user_id ?? '');
         $success        = session('success');
-        $fmt            = fn($v)=>number_format((float)$v, 2);
 
-        // Force CAD for display
-        $currencySymbol = 'C$';
+        $toYmd = function ($v) {
+            if (!$v) return '';
+            if ($v instanceof \DateTimeInterface) return $v->format('Y-m-d');
+            try { return \Illuminate\Support\Carbon::parse($v)->toDateString(); } catch (\Throwable $e) { return ''; }
+        };
+
+        $payslip = $payroll?->payslip;
+        $periodFromValue = old('period_from', $toYmd($payroll?->period_from ?? $payslip?->period_from ?? null));
+        $periodToValue   = old('period_to',   $toYmd($payroll?->period_to   ?? $payslip?->period_to   ?? null));
     @endphp
 
     <div class="py-12 bg-gray-50 dark:bg-gray-900 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
-            <!-- Add Payroll -->
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <section>
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900 dark:text-gray-100">
-                        <header class="mb-6">
-                            <h3 class="text-lg sm:text-xl font-semibold">
-                                {{ $editing ? 'Edit Payroll' : 'Add Payroll' }}
-                            </h3>
-                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                                Select an employee and enter payroll details.
-                            </p>
+                        <header class="mb-6 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg sm:text-xl font-semibold">
+                                    {{ $editing ? 'Edit Payroll' : 'Add Payroll' }}
+                                </h3>
+                                @if($success)
+                                    <p class="mt-3 text-sm text-green-600 dark:text-green-400">{{ $success }}</p>
+                                @endif
+                            </div>
+                            <a href="{{ route('payroll.index') }}" class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">
+                                View Payroll Records
+                            </a>
                         </header>
 
                         <form action="{{ $formAction }}" method="POST" class="space-y-6">
@@ -35,7 +44,7 @@
 
                             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                                 <!-- Employee -->
-                                <div>
+                                <div class="md:col-span-2">
                                     <x-input-label for="user_id" :value="__('Employee')" />
                                     <select id="user_id" name="user_id" required
                                             class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
@@ -51,6 +60,24 @@
                                         @endforeach
                                     </select>
                                     <x-input-error class="mt-2" :messages="$errors->get('user_id')" />
+                                </div>
+
+                                <!-- Period From -->
+                                <div>
+                                    <x-input-label for="period_from" :value="__('Period From')" />
+                                    <x-text-input id="period_from" name="period_from" type="date"
+                                                  class="mt-1 block w-full"
+                                                  :value="$periodFromValue" />
+                                    <x-input-error class="mt-2" :messages="$errors->get('period_from')" />
+                                </div>
+
+                                <!-- Period To -->
+                                <div>
+                                    <x-input-label for="period_to" :value="__('Period To')" />
+                                    <x-text-input id="period_to" name="period_to" type="date"
+                                                  class="mt-1 block w-full"
+                                                  :value="$periodToValue" />
+                                    <x-input-error class="mt-2" :messages="$errors->get('period_to')" />
                                 </div>
 
                                 <!-- Employment Status -->
@@ -88,8 +115,8 @@
                                 <!-- Hours Worked -->
                                 <div>
                                     <x-input-label for="hours_worked" :value="__('Hours Worked')" />
-                                    <x-text-input id="hours_worked" name="hours_worked" type="number" step="0.01" min="0"
-                                                  class="mt-1 block w-full"
+                                    <x-text-input id="hours_worked" name="hours_worked" type="number" step="0.01" min="0" readonly
+                                                  class="mt-1 block w-full bg-gray-100 dark:bg-gray-700"
                                                   :value="old('hours_worked', $payroll->hours_worked ?? '')" />
                                     <x-input-error class="mt-2" :messages="$errors->get('hours_worked')" />
                                 </div>
@@ -121,104 +148,8 @@
                                 <x-primary-button>
                                     {{ $editing ? 'Update Payroll' : 'Add Payroll' }}
                                 </x-primary-button>
-
-                                @if($success)
-                                    <p class="text-sm text-green-600 dark:text-green-400">{{ $success }}</p>
-                                @endif
                             </div>
                         </form>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Payroll Records -->
-            <section>
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <header class="mb-4">
-                            <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">Payroll Records</h3>
-                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Review, edit, or delete payroll entries.</p>
-                        </header>
-
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                <thead class="bg-gray-50 dark:bg-gray-700/50">
-                                    <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Employee</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Type</th>
-                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Base</th>
-                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Hourly</th>
-                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Hours</th>
-                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Gross</th>
-                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Deductions</th>
-                                        <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Net</th>
-                                        <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Status</th>
-                                        <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-200">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                                    @forelse ($payrolls as $row)
-                                        @php
-                                            $gross = (float)($row->gross_pay ?? 0);
-                                            $ded   = (float)($row->deductions ?? 0);
-                                            $net   = (float)($row->net_pay ?? max(0, $gross - $ded));
-                                        @endphp
-                                        <tr class="bg-white dark:bg-gray-900">
-                                            <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                                {{ optional($row->user)->first_name }} {{ optional($row->user)->last_name }}
-                                            </td>
-                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-                                                {{ $row->employment_status ?? '—' }}
-                                            </td>
-                                            <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
-                                                {{ $currencySymbol.$fmt($row->base_pay ?? 0) }}
-                                            </td>
-                                            <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
-                                                {{ $currencySymbol.$fmt($row->hourly_rate ?? 0) }}
-                                            </td>
-                                            <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
-                                                {{ $fmt($row->hours_worked ?? 0) }}
-                                            </td>
-                                            <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
-                                                {{ $currencySymbol.$fmt($gross) }}
-                                            </td>
-                                            <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
-                                                {{ $currencySymbol.$fmt($ded) }}
-                                            </td>
-                                            <td class="px-4 py-3 text-sm text-right text-gray-900 dark:text-gray-100">
-                                                {{ $currencySymbol.$fmt($net) }}
-                                            </td>
-                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-                                                {{ $row->status ?? '—' }}
-                                            </td>
-                                            <td class="px-4 py-3 text-sm">
-                                                <div class="flex justify-center gap-3">
-                                                    @if(Auth::user()?->is_admin)
-                                                        <a href="{{ route('payroll.edit', $row->id) }}" class="text-blue-600 dark:text-blue-400 hover:underline">Edit</a>
-                                                        <form action="{{ route('payroll.destroy', $row->id) }}" method="POST" onsubmit="return confirm('Delete this payroll?');">
-                                                            @csrf @method('DELETE')
-                                                            <button class="text-red-600 dark:text-red-400 hover:underline">Delete</button>
-                                                        </form>
-                                                    @endif
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr class="bg-white dark:bg-gray-900">
-                                            <td colspan="10" class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-                                                No payroll records found.
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-
-                        @if(method_exists($payrolls, 'links'))
-                            <div class="px-4 py-3">
-                                {{ $payrolls->links() }}
-                            </div>
-                        @endif
                     </div>
                 </div>
             </section>
@@ -226,7 +157,6 @@
     </div>
 
     <script>
-        // Auto-fill and auto-calc
         document.addEventListener('DOMContentLoaded', function () {
             const userSelect   = document.getElementById('user_id');
             const statusEl     = document.getElementById('employment_status');
@@ -234,8 +164,11 @@
             const baseEl       = document.getElementById('base_pay');
             const hoursEl      = document.getElementById('hours_worked');
             const grossEl      = document.getElementById('gross_pay');
+            const periodFromEl = document.getElementById('period_from');
+            const periodToEl   = document.getElementById('period_to');
             const isEditing    = @json($editing);
             const baseByStatus = @json($baseByStatus);
+            const hoursUrl     = @json(route('payroll.hours'));
 
             function toNum(el) { const v = parseFloat(el?.value ?? ''); return isFinite(v) ? v : 0; }
 
@@ -246,13 +179,13 @@
                 }
             }
 
-            function applyFromSelected() {
+            function applyFromSelectedEmployee() {
                 const opt = userSelect?.options[userSelect.selectedIndex];
                 if (!opt) return;
                 const status = opt.dataset.status || '';
                 const hourly = opt.dataset.hourly || '';
                 if (status && statusEl) statusEl.value = status;
-                if (hourly !== '' && hourlyEl) hourlyEl.value = hourly;
+                if (hourly !== '' && hourlyEl) hourlyEl.value = parseFloat(hourly);
                 applyBaseFromStatus(status);
                 calcGross();
             }
@@ -264,22 +197,49 @@
                 const hours  = toNum(hoursEl);
                 const gross  = base + (hourly * hours);
                 if (!grossEl.dataset.touched || !isEditing) {
-                    grossEl.value = gross.toFixed(2);
+                    grossEl.value = (isFinite(gross) ? gross : 0).toFixed(2);
+                }
+            }
+
+            async function fetchHours() {
+                try {
+                    const uid  = userSelect?.value;
+                    const from = periodFromEl?.value;
+                    const to   = periodToEl?.value;
+                    if (!uid || !from || !to) return;
+
+                    const url = new URL(hoursUrl, window.location.origin);
+                    url.searchParams.set('user_id', uid);
+                    url.searchParams.set('from', from);
+                    url.searchParams.set('to', to);
+
+                    const res = await fetch(url.toString(), { headers: { 'Accept': 'application/json' } });
+                    if (!res.ok) throw new Error('Failed to fetch hours');
+                    const data = await res.json();
+                    const total = Number(data?.hours ?? 0);
+                    hoursEl.value = (isFinite(total) ? total : 0).toFixed(2);
+                    calcGross();
+                } catch (e) {
+                    console.error(e);
                 }
             }
 
             grossEl?.addEventListener('input', () => { grossEl.dataset.touched = '1'; });
 
-            userSelect?.addEventListener('change', applyFromSelected);
+            userSelect?.addEventListener('change', () => { applyFromSelectedEmployee(); fetchHours(); });
             statusEl?.addEventListener('change', () => { applyBaseFromStatus(statusEl.value || ''); calcGross(); });
             hourlyEl?.addEventListener('input', calcGross);
             baseEl?.addEventListener('input', calcGross);
-            hoursEl?.addEventListener('input', calcGross);
+            periodFromEl?.addEventListener('change', fetchHours);
+            periodToEl?.addEventListener('change', fetchHours);
 
             const fieldsEmpty = (!statusEl?.value) && (!hourlyEl?.value) && (!baseEl?.value);
+            if ((!isEditing || fieldsEmpty) && userSelect?.value) applyFromSelectedEmployee();
+            calcGross();
 
-            if ((!isEditing || fieldsEmpty) && userSelect?.value) applyFromSelected();
-            else calcGross();
+            if (userSelect?.value && periodFromEl?.value && periodToEl?.value) {
+                fetchHours();
+            }
         });
     </script>
 </x-app-layout>

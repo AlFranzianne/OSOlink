@@ -12,6 +12,7 @@ use Carbon\Carbon;
 
 class PayrollController extends Controller
 {
+    // Add Payroll form (also used for editing a single payroll)
     public function index()
     {
         $employees = User::select('id', 'first_name', 'last_name', 'employment_status', 'hourly_rate')
@@ -19,9 +20,15 @@ class PayrollController extends Controller
             ->get();
 
         $baseByStatus = config('payroll.default_base_by_status', []);
-        $payrolls = Payroll::with('user')->latest()->paginate(10);
 
-        return view('payroll.index', compact('employees', 'payrolls', 'baseByStatus'));
+        return view('payroll.index', compact('employees', 'baseByStatus'));
+    }
+
+    // Payroll Records list (default page)
+    public function records()
+    {
+        $payrolls = Payroll::with(['user'])->latest()->paginate(10);
+        return view('payroll.edit', compact('payrolls'));
     }
 
     public function store(Request $request)
@@ -60,12 +67,16 @@ class PayrollController extends Controller
 
         $payroll = Payroll::create($attrs);
 
-        // Auto-generate/refresh payslip (Option A)
-        $this->syncPayslipFromPayroll($payroll);
+        // Sync payslip (store period_* even if payrolls table lacks those columns)
+        $this->syncPayslipFromPayroll($payroll, [
+            'period_from' => $request->input('period_from'),
+            'period_to'   => $request->input('period_to'),
+        ]);
 
         return redirect()->route('payroll.index')->with('success', 'Payroll added.');
     }
 
+    // Open the same form (index) in edit mode for a specific payroll
     public function edit(Payroll $payroll)
     {
         $employees = User::select('id', 'first_name', 'last_name', 'employment_status', 'hourly_rate')
@@ -73,9 +84,9 @@ class PayrollController extends Controller
             ->get();
 
         $baseByStatus = config('payroll.default_base_by_status', []);
-        $payrolls = Payroll::with('user')->latest()->paginate(10);
+        $payroll->load(['user', 'payslip']);
 
-        return view('payroll.index', compact('employees', 'payrolls', 'payroll', 'baseByStatus'));
+        return view('payroll.index', compact('employees', 'payroll', 'baseByStatus'));
     }
 
     public function update(Request $request, Payroll $payroll)
@@ -114,14 +125,21 @@ class PayrollController extends Controller
         $payroll->update($attrs);
 
         // Keep payslip in sync
-        $this->syncPayslipFromPayroll($payroll);
+        $this->syncPayslipFromPayroll($payroll->fresh(), [
+            'period_from' => $request->input('period_from'),
+            'period_to'   => $request->input('period_to'),
+        ]);
 
         return redirect()->route('payroll.index')->with('success', 'Payroll updated.');
     }
 
     public function destroy(Payroll $payroll)
     {
-        Payslip::where('payroll_id', $payroll->id)->delete();
+        // Clean up payslip if exists
+        if (Schema::hasTable((new Payslip)->getTable())) {
+            Payslip::where('payroll_id', $payroll->id)->delete();
+        }
+
         $payroll->delete();
 
         return redirect()->route('payroll.index')->with('success', 'Payroll deleted.');
@@ -136,7 +154,7 @@ class PayrollController extends Controller
             'to'      => ['required', 'date_format:Y-m-d', 'after_or_equal:from'],
         ]);
 
-        // Detect a timelog table
+        // Choose time log table
         $table = null;
         foreach (['time_logs', 'timelogs'] as $t) {
             if (Schema::hasTable($t)) { $table = $t; break; }
@@ -145,7 +163,7 @@ class PayrollController extends Controller
             return response()->json(['hours' => 0]);
         }
 
-        // Choose date column
+        // Date column heuristic
         $dateCol = null;
         foreach (['work_date', 'date', 'log_date'] as $c) {
             if (Schema::hasColumn($table, $c)) { $dateCol = $c; break; }
@@ -158,13 +176,13 @@ class PayrollController extends Controller
             $q->whereBetween(DB::raw('DATE(created_at)'), [$data['from'], $data['to']]);
         }
 
-        // Sum hours using best available columns
+        // Sum hours using available schema
         if (Schema::hasColumn($table, 'hours')) {
             $total = (float) $q->sum('hours');
         } elseif (Schema::hasColumn($table, 'duration_minutes')) {
             $total = ((float) $q->sum('duration_minutes')) / 60.0;
         } else {
-            // Compute from start/end pairs
+            // Derive from time ranges if available
             $cols = array_values(array_filter([
                 Schema::hasColumn($table, 'start_time') ? 'start_time' : null,
                 Schema::hasColumn($table, 'end_time') ? 'end_time' : null,
@@ -186,20 +204,23 @@ class PayrollController extends Controller
         return response()->json(['hours' => round($total, 2)]);
     }
 
-    private function syncPayslipFromPayroll(Payroll $payroll): Payslip
+    // Sync payslip, accepting optional overrides for period_* so we can save them even if payrolls table lacks those columns
+    private function syncPayslipFromPayroll(Payroll $payroll, array $overrides = []): ?Payslip
     {
+        $payslipsTable = (new Payslip)->getTable();
+        if (!Schema::hasTable($payslipsTable)) {
+            return null;
+        }
+
         $gross = (float) ($payroll->gross_pay ?? 0);
         $ded   = (float) ($payroll->deductions ?? 0);
         $tax   = (float) ($payroll->tax_deduction ?? 0);
         $net   = (float) ($payroll->net_pay ?? max(0, $gross - $ded));
 
-        // Read period_* from payroll if columns exist on payrolls table
-        $periodFrom = Schema::hasColumn($payroll->getTable(), 'period_from') ? $payroll->period_from : null;
-        $periodTo   = Schema::hasColumn($payroll->getTable(), 'period_to')   ? $payroll->period_to   : null;
+        $periodFrom = $overrides['period_from'] ?? (Schema::hasColumn($payroll->getTable(), 'period_from') ? $payroll->period_from : null);
+        $periodTo   = $overrides['period_to']   ?? (Schema::hasColumn($payroll->getTable(), 'period_to')   ? $payroll->period_to   : null);
 
-        $payslipsTable = (new Payslip)->getTable();
         $data = [];
-
         $add = function (string $col, $val) use (&$data, $payslipsTable) {
             if (Schema::hasColumn($payslipsTable, $col)) $data[$col] = $val;
         };
