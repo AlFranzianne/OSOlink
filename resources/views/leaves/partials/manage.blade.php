@@ -43,7 +43,7 @@
                         <td class="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-200">{{ $leave->type }}</td>
                         <td class="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-200">{{ \Carbon\Carbon::parse($leave->start_date)->format('Y-m-d') }}</td>
                         <td class="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-200">{{ \Carbon\Carbon::parse($leave->end_date)->format('Y-m-d') }}</td>
-                        <td class="px-4 py-2 text-center">
+                        <td class="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-200">
                             @php $status = $leave->status ?? 'Pending'; @endphp
                             <span class="
                                 @if(strtolower($status) === 'approved') text-green-600 dark:text-green-400
@@ -65,7 +65,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-4 py-2 text-center text-gray-500">No leaves found.</td>
+                        <td colspan="5" class="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-200">No leaves found.</td>
                     </tr>
                 @endforelse
             </tbody>

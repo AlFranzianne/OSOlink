@@ -8,11 +8,6 @@
                 {{ __("Approve, view, and search global leaves.") }}
             </p>
         </div>
-        <div class="flex items-center gap-4">
-            @if (session('admin_update_success'))
-               <p class="text-sm text-green-600 dark:text-green-400">{{ session('admin_update_success') }}</p>
-            @endif
-        </div>
     </header>
 
     <!-- Filter / Sorter (added) -->
